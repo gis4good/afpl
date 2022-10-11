@@ -7,6 +7,7 @@ Created on Thu Sep 29 10:50:37 2022
 
 
 from flask import Flask
+from collections.abc import Mapping
 
 
 app=Flask(__name__)
