@@ -1,0 +1,6 @@
+git init 
+heroku git:remote -a afplflask-app 
+git add .
+git config --global user.email "himesh.patra@gmail.com" 
+git commit -m "first commit"
+git push heroku master
