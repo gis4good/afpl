@@ -8,3 +8,6 @@ MarkupSafe==1.1.1
 python-dotenv==0.13.0
 Werkzeug==1.0.1
 geopy
+pandas
+numpy
+requests
