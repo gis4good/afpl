@@ -142,7 +142,7 @@ def wt():
     except Exception as e:
            err={'Error':str(e),'Status':False}
            return err
-@app.route('/msg/',methods=['POST'])   
+@app.route('/msg',methods=['POST'])   
 def reply():
     incoming_msg = request.form.get('Body').lower()
     response = MessagingResponse()
