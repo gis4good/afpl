@@ -142,7 +142,17 @@ def wt():
     except Exception as e:
            err={'Error':str(e),'Status':False}
            return err
-        
+@app.route('/msg/',methods=['POST'])   
+def reply():
+    incoming_msg = request.form.get('Body').lower()
+    response = MessagingResponse()
+    message=response.message()
+    responded = False
+    words = incoming_msg.split('@')
+    if "hello" in incoming_msg:
+        reply = "THis is a Farmer Support System :-Here are the avalaible information"
+        message.body(reply)
+        responded = True        
 
 if __name__ == '__main__':
     app.run() 
