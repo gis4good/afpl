@@ -155,6 +155,7 @@ def reply():
         reply = "THis is a Farmer Support System :-Here are the avalaible information"
         message.body(reply)
         responded = True        
+    return str(response)    
 
 if __name__ == '__main__':
     app.run() 
