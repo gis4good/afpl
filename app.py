@@ -158,7 +158,7 @@ def reply():
     return str(response)    
 @app.route('/map',methods=['GET'])    
 def leaf():
-    return render_template('solar.html')    
+    return render_template('tl.html')    
 
 if __name__ == '__main__':
     app.run() 
