@@ -156,6 +156,9 @@ def reply():
         message.body(reply)
         responded = True        
     return str(response)    
+@app.route('/map',methods=['POST'])    
+def leaf():
+    return render_template('demo.html')    
 
 if __name__ == '__main__':
     app.run() 
