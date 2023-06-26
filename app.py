@@ -156,9 +156,12 @@ def reply():
         message.body(reply)
         responded = True        
     return str(response)    
-@app.route('/map',methods=['GET'])    
-def leaf():
-    return render_template('tl.html')    
+@app.route('/map/<file>',methods=['GET'])    
+def leaf(file):
+    if file=='tl':
+        return render_template('tl.html')
+    if file=='od':
+        return render_template('od.html')   
 
 if __name__ == '__main__':
     app.run() 
