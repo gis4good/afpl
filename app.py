@@ -161,7 +161,9 @@ def leaf(file):
     if file=='tl':
         return render_template('tl.html')
     if file=='od':
-        return render_template('od.html')   
+        return render_template('od.html') 
+    if file=='balipatna':
+        return render_template('balipatna.html')     
 
 if __name__ == '__main__':
     app.run() 
