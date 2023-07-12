@@ -172,6 +172,8 @@ def leaf(file):
         return render_template('maheshwaram.html')
     if file=='chevella':
         return render_template('chevella.html')    
+    if file=='ibrahim':
+        return render_template('ibrahim.html')     
 
 if __name__ == '__main__':
     app.run() 
