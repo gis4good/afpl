@@ -167,7 +167,11 @@ def leaf(file):
     if file=='kurmalguda':
         return render_template('kurmalguda.html') 
     if file=='rangareddy':
-        return render_template('rangareddy.html')     
+        return render_template('rangareddy.html')    
+    if file=='maheshwaram':
+        return render_template('maheshwaram.html')
+    if file=='chevella':
+        return render_template('chevella.html')    
 
 if __name__ == '__main__':
     app.run() 
