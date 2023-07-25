@@ -174,6 +174,16 @@ def leaf(file):
         return render_template('chevella.html')    
     if file=='ibrahim':
         return render_template('ibrahim.html')     
+    if file=='narayankhed':
+        return render_template('narayanked.html')
+    if file=='zaheerabad':
+            return render_template('zaheerabad.html')
+    if file=='sadashivpet':
+            return render_template('sadashivpet.html')
+    if file=='pashamylaram':
+            return render_template('pashamylaram.html')
+    if file=='narsapur':
+            return render_template('narsapur.html')      
 
 if __name__ == '__main__':
     app.run() 
