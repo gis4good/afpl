@@ -184,6 +184,12 @@ def leaf(file):
             return render_template('pashamylaram.html')
     if file=='narsapur':
             return render_template('narsapur.html')      
+    if file=='Kulkacharla':
+        return render_template('Kulkacharla.html')
+    if file=='tandur':
+            return render_template('tandur.html')
+    if file=='vikarabad':
+            return render_template('vikarabad.html')    
 
 if __name__ == '__main__':
     app.run() 
