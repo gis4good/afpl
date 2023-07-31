@@ -189,7 +189,11 @@ def leaf(file):
     if file=='tandur':
             return render_template('tandur.html')
     if file=='vikarabad':
-            return render_template('vikarabad.html')    
+            return render_template('vikarabad.html')
+    if file=='narisinghi':
+        return render_template('narisinghi.html')
+    if file=='shankarampet':
+        return render_template('shankarampet.html')    
 
 if __name__ == '__main__':
     app.run() 
