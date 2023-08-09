@@ -10,9 +10,9 @@ from flask import Flask,jsonify,render_template
 import geopy.distance
 from flask import request
 from collections.abc import Mapping
-import requests,json,numpy as np,pandas as pd
+import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
-
+from io import StringIO
 import ee,os
 os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "ndvi12345-c712223647ab.json"
 ee.Initialize()
