@@ -17,4 +17,3 @@ keras
 tensorflow
 matplotlib
 ipygee
-StringIO
