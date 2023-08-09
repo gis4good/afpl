@@ -16,5 +16,4 @@ ee
 keras
 tensorflow
 matplotlib
-pylab
 ipygee
