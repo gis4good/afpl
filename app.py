@@ -193,7 +193,94 @@ def leaf(file):
     if file=='narisinghi':
         return render_template('narisinghi.html')
     if file=='shankarampet':
-        return render_template('shankarampet.html')    
+        return render_template('shankarampet.html') 
+@app.route('/ai/',methods=['GET'])
+def ai():
+    try:
+        x1 = request.args.get('x1')
+        y1 = request.args.get('y1')
+        Point_1 = ee.FeatureCollection(
+                [ee.Feature(
+                    ee.Geometry.Point([  float(x1),float(y1)]),
+                    {
+                      "system:index": "0"
+                    })]);
+
+
+
+        startDateviz = ee.Date.fromYMD(2021,1,1);
+        endDateviz = ee.Date.fromYMD(2023,12,20);
+        collectionviz = ee.ImageCollection("COPERNICUS/S2").filterDate(startDateviz,endDateviz).filterBounds(Point_1).filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than', 30);
+
+
+
+
+
+        startDate = ee.Date.fromYMD(2018,1,1);
+        endDate = ee.Date.fromYMD(2023,12,31);
+
+        S2_nocloud = ee.ImageCollection("COPERNICUS/S2_SR").filterDate(startDate,endDate).filterBounds(Point_1).filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than',10)
+
+        # S2_NDVI_nocloud = S2_nocloud.map(lambda image: image.normalizedDifference(['B8', 'B4']).rename('NDVI').copyProperties(image, ['system:time_start']))
+        S2_EVI_nocloud = S2_nocloud.map(lambda image: image.expression(
+                '2.5 * ((NIR - RED) / (NIR + 6 * RED - 7.5 * BLUE + 1))', {
+                    'NIR': image.select('B8').divide(10000),
+                    'RED': image.select('B4').divide(10000),
+                    'BLUE': image.select('B2').divide(10000)
+                }).rename('EVI').copyProperties(image, ['system:time_start']))
+
+
+        point_evi = chart.Image.series(**{'imageCollection': S2_EVI_nocloud,
+                                           'region': Point_1,
+                                           'reducer': ee.Reducer.mean(),
+                                           'bands' : 'EVI',
+                                           'scale': 20,
+                                           'xProperty': 'system:time_start'})
+
+
+
+        point_evi.renderWidget(width='50%')
+        p2_dataframe = point_evi.dataframe
+
+
+
+        matplotlib.rcParams['axes.labelsize'] = 14
+        matplotlib.rcParams['xtick.labelsize'] = 12
+        matplotlib.rcParams['ytick.labelsize'] = 12
+        matplotlib.rcParams['text.color'] = 'k'
+        import matplotlib.pyplot as plt
+        plt.style.use('fivethirtyeight')
+        rcParams['figure.figsize'] = 18, 8
+
+
+
+
+        plt.style.use('fivethirtyeight')
+        rcParams['figure.figsize'] = 18, 8
+
+        p2_dataframe.plot(figsize=(15, 6),ylim=(0,1))
+        plt.savefig('demo'+'.jpg')
+        
+        model = load_model('model_saved.h5')
+          
+        image = load_img("demo.jpg" ,target_size=(224, 224))
+        img = np.array(image)
+        img = img / 255.0
+        img = img.reshape(1,224,224,3)
+        label = model.predict(img)
+        if label[0][0]<0.85:
+            type='Non Crop'
+            
+        else:
+           type='Crop Land' 
+        return type
+       
+    except Exception as e:
+        err={'Error':str(e)}
+        return err
+
+        
+        
 
 if __name__ == '__main__':
     app.run() 
