@@ -12,3 +12,9 @@ pandas
 numpy
 requests
 twilio
+ee
+keras
+tensorflow
+matplotlib
+pylab
+ipygee
