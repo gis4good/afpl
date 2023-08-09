@@ -13,7 +13,16 @@ from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd
 from twilio.twiml.messaging_response import MessagingResponse
 
+import ee,os
+os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = "ndvi12345-c712223647ab.json"
+ee.Initialize()
+from keras.models import load_model
+from tensorflow.keras.utils import load_img
 
+from IPython.display import Image
+from ipygee import*
+import pandas as pd
+import matplotlib
 
 app=Flask(__name__)
 @app.route('/home/')
