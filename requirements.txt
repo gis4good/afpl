@@ -12,7 +12,7 @@ pandas
 numpy
 requests
 twilio
-ee
+ee==0.1.360
 keras
 tensorflow
 matplotlib
