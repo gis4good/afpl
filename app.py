@@ -13,6 +13,8 @@ from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
 from io import StringIO
+from google.auth import compute_engine
+
 import ee,os
 # service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 # credentials = ee.ServiceAccountCredentials(service_account, 'ndvi12345-c712223647ab.json')
