@@ -16,6 +16,6 @@ earthengine-api==0.1.360
 keras
 tensorflow
 matplotlib
-ipygee
+ipygee== 0.0.18
 google-auth
 
