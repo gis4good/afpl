@@ -17,9 +17,12 @@ import ee,os
 # service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 # credentials = ee.ServiceAccountCredentials(service_account, 'ndvi12345-c712223647ab.json')
 # ee.Initialize(credentials)
+scopes = [
+    "https://www.googleapis.com/auth/earthengine"
+]
 
-os.environ['GOOGLE_APPLICATION_CREDENTIALS']='ndvi12345-c712223647ab.json'
-ee.Initialize()
+credentials = compute_engine.Credentials(scopes=scopes)
+ee.Initialize(credentials)
 from keras.models import load_model
 from tensorflow.keras.utils import load_img
 
