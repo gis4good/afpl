@@ -14,7 +14,8 @@ import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
 from io import StringIO
 from google.auth import compute_engine
-from ipygee import chart,rcParams
+from ipygee import chart
+from pylab import rcParams
 
 import ee,os
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
