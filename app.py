@@ -14,7 +14,6 @@ import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
 from io import StringIO
 from google.auth import compute_engine
-from ipygee import chart
 from matplotlib import pylab
 from pylab import rcParams
 
@@ -213,6 +212,7 @@ def leaf(file):
 @app.route('/ai/',methods=['GET'])
 def ai():
     try:
+        from ipygee import chart
         x1 = request.args.get('x1')
         y1 = request.args.get('y1')
         Point_1 = ee.FeatureCollection(
