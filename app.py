@@ -284,11 +284,11 @@ def ai():
         img = img.reshape(1,224,224,3)
         label = model.predict(img)
         if label[0][0]<0.85:
-            type='Non Crop'
+            type1='Non Crop'
             
         else:
-           type='Crop Land' 
-        return type
+           type1='Crop Land' 
+        return type1
        
     except Exception as e:
         err={'Error':str(e)}
