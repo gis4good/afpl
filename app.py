@@ -24,7 +24,7 @@ from keras.models import load_model
 from tensorflow.keras.utils import load_img
 
 from IPython.display import Image
-from ipygee import*
+
 import pandas as pd
 import matplotlib
 
