@@ -16,7 +16,7 @@ from io import StringIO
 from google.auth import compute_engine
 from matplotlib import pylab
 from pylab import rcParams
-
+isinstance=[]
 import ee,os
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
