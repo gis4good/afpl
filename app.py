@@ -15,6 +15,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from io import StringIO
 from google.auth import compute_engine
 from ipygee import chart
+from matplotlib import pylab
 from pylab import rcParams
 
 import ee,os
