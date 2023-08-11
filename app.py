@@ -212,7 +212,7 @@ def leaf(file):
 @app.route('/ai/',methods=['GET'])
 def ai():
     try:
-        from ipygee import chart
+        import ipygee as ui
         x1 = request.args.get('x1')
         y1 = request.args.get('y1')
         Point_1 = ee.FeatureCollection(
@@ -246,7 +246,7 @@ def ai():
                 }).rename('EVI').copyProperties(image, ['system:time_start']))
 
 
-        point_evi = chart.Image.series(**{'imageCollection': S2_EVI_nocloud,
+        point_evi = ui.chart.Image.serie(**{'imageCollection': S2_EVI_nocloud,
                                            'region': Point_1,
                                            'reducer': ee.Reducer.mean(),
                                            'bands' : 'EVI',
