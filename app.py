@@ -7,8 +7,8 @@ Created on Thu Sep 29 10:50:37 2022
 
 
 from flask import Flask,jsonify,render_template
-import ipygee as ui
 import geopy.distance
+import chart as chart
 from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
@@ -21,6 +21,7 @@ import ee,os
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
 ee.Initialize(credentials)
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 from keras.models import load_model
 from tensorflow.keras.utils import load_img
@@ -246,7 +247,7 @@ def ai():
                 }).rename('EVI').copyProperties(image, ['system:time_start']))
 
 
-        point_evi = ui.chart.Image.serie(**{'imageCollection': S2_EVI_nocloud,
+        point_evi = chart.Image.serie(**{'imageCollection': S2_EVI_nocloud,
                                            'region': Point_1,
                                            'reducer': ee.Reducer.mean(),
                                            'bands' : 'EVI',
