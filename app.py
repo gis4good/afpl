@@ -7,6 +7,7 @@ Created on Thu Sep 29 10:50:37 2022
 
 
 from flask import Flask,jsonify,render_template
+import ipygee as ui
 import geopy.distance
 from flask import request
 from collections.abc import Mapping
@@ -16,7 +17,6 @@ from io import StringIO
 from google.auth import compute_engine
 from matplotlib import pylab
 from pylab import rcParams
-isinstance=[]
 import ee,os
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
@@ -212,7 +212,7 @@ def leaf(file):
 @app.route('/ai/',methods=['GET'])
 def ai():
     try:
-        import ipygee as ui
+        
         x1 = request.args.get('x1')
         y1 = request.args.get('y1')
         Point_1 = ee.FeatureCollection(
