@@ -276,21 +276,26 @@ def ai():
         rcParams['figure.figsize'] = 18, 8
 
         p2_dataframe.plot(figsize=(15, 6),ylim=(0,1))
-        plt.savefig('demo'+'.jpg')
+        plt.savefig(f"./static/images/{float(x1)+float(y1)}.jpg")
         
         model = load_model('model_saved.h5')
           
-        image = load_img("demo.jpg" ,target_size=(224, 224))
+        image = load_img(f"./static/images/{float(x1)+float(y1)}.jpg" ,target_size=(224, 224))
         img = np.array(image)
         img = img / 255.0
         img = img.reshape(1,224,224,3)
         label = model.predict(img)
         if label[0][0]<0.85:
-            type1='Non Crop'
+            type='Non Crop'
             
         else:
-           type1='Crop Land' 
-        return type1
+           type='Crop Land' 
+           
+           
+         # Replace with your image URL
+        description ='Vegetation Report='+type
+        image_url=f'images/{float(x1)+float(y1)}.jpg'
+        return render_template('img.html', image_url=image_url, description=description)    
        
     except Exception as e:
         err={'Error':str(e)}
