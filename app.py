@@ -286,14 +286,14 @@ def ai():
         img = img.reshape(1,224,224,3)
         label = model.predict(img)
         if label[0][0]<0.85:
-            type='Non Crop'
+            type='Non Crop Land'
             
         else:
            type='Crop Land' 
            
            
          # Replace with your image URL
-        description ='Vegetation Report='+type
+        description ='Vegetation Report (EVI) for the given cords='+type
         image_url=f'images/{float(x1)+float(y1)}.jpg'
         return render_template('img.html', image_url=image_url, description=description)    
        
