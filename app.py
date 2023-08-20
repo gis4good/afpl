@@ -260,9 +260,10 @@ def ai():
         point_evi.renderWidget(width='50%')
         p2_dataframe = point_evi.dataframe
         resampled_data = p2_dataframe.resample("15D").mean().dropna()
-        evi_values=resampled_data['EVI']    
+        evi_values=resampled_data['EVI']
         resampled_data['vv']=resampled_data.index
         time_values=list(resampled_data['vv'])
+
         matplotlib.rcParams['axes.labelsize'] = 14
         matplotlib.rcParams['xtick.labelsize'] = 12
         matplotlib.rcParams['ytick.labelsize'] = 12
@@ -270,6 +271,9 @@ def ai():
         import matplotlib.pyplot as plt
         plt.style.use('fivethirtyeight')
         rcParams['figure.figsize'] = 18, 8
+
+
+
 
         plt.style.use('fivethirtyeight')
         rcParams['figure.figsize'] = 18, 8
@@ -284,6 +288,7 @@ def ai():
         img = img / 255.0
         img = img.reshape(1,224,224,3)
         label = model.predict(img)
+        
         def update(frame):
             ax.clear()
             ax.plot(time_values[:frame+1], evi_values[:frame+1], marker='o')
@@ -313,8 +318,8 @@ def ai():
            
          # Replace with your image URL
         description ='Vegetation Report='+type
-        image_url=f'images/{float(x1)+float(y1)}.jpg'
-        return render_template('img.html', image_url=image_url, description=description)   
+        image_url=f'images/{float(x1)+float(y1)}.gif'
+        return render_template('img.html', image_url=image_url, description=description)    
        
     except Exception as e:
         err={'Error':str(e)}
