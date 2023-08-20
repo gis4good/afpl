@@ -16,6 +16,7 @@ from twilio.twiml.messaging_response import MessagingResponse
 from io import StringIO
 from google.auth import compute_engine
 from matplotlib import pylab
+from matplotlib.animation import FuncAnimation
 from pylab import rcParams
 import ee,os
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
@@ -259,8 +260,6 @@ def ai():
         point_evi.renderWidget(width='50%')
         p2_dataframe = point_evi.dataframe
 
-
-
         matplotlib.rcParams['axes.labelsize'] = 14
         matplotlib.rcParams['xtick.labelsize'] = 12
         matplotlib.rcParams['ytick.labelsize'] = 12
@@ -268,9 +267,6 @@ def ai():
         import matplotlib.pyplot as plt
         plt.style.use('fivethirtyeight')
         rcParams['figure.figsize'] = 18, 8
-
-
-
 
         plt.style.use('fivethirtyeight')
         rcParams['figure.figsize'] = 18, 8
@@ -285,17 +281,37 @@ def ai():
         img = img / 255.0
         img = img.reshape(1,224,224,3)
         label = model.predict(img)
+        def update(frame):
+            ax.clear()
+            ax.plot(time_values[:frame+1], evi_values[:frame+1], marker='o')
+            ax.set_title('EVI Values Over Time')
+            ax.set_xlabel('Time')
+            ax.set_ylabel('EVI')
+            ax.set_xlim(min(time_values), max(time_values))  # Set limits for x-axis
+            ax.set_ylim(0, 1)  # Set limits for y-axis
+            
+        fig, ax = plt.subplots()
+
+        ax.xaxis_date()
+
+        ani = FuncAnimation(fig, update, frames=int(len(time_values)), interval=1)
+        plt.show()
+
+        animation_filename =f"./static/images/{float(x1)+float(y1)}.gif"
+        ani.save(animation_filename, writer='pillow')
+        
+        
         if label[0][0]<0.85:
-            type='Non Crop Land'
+            type='Non Crop'
             
         else:
            type='Crop Land' 
            
            
          # Replace with your image URL
-        description ='Vegetation Report (EVI) for the given cords='+type
-        image_url=f'images/{float(x1)+float(y1)}.jpg'
-        return render_template('img.html', image_url=image_url, description=description)    
+        description ='Vegetation Report='+type
+        image_url=f'images/{float(x1)+float(y1)}.gif'
+        return render_template('img.html', image_url=image_url, description=description)   
        
     except Exception as e:
         err={'Error':str(e)}
