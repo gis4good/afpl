@@ -313,7 +313,7 @@ def ai():
            
          # Replace with your image URL
         description ='Vegetation Report='+type
-        image_url=f'images/{float(x1)+float(y1)}.gif'
+        image_url=f'images/{float(x1)+float(y1)}.jpg'
         return render_template('img.html', image_url=image_url, description=description)   
        
     except Exception as e:
