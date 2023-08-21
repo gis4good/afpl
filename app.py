@@ -259,7 +259,7 @@ def ai():
 
         point_evi.renderWidget(width='50%')
         p2_dataframe = point_evi.dataframe
-        resampled_data = p2_dataframe.resample("15D").mean().dropna()
+        resampled_data = p2_dataframe.resample("30D").mean().dropna()
         evi_values=resampled_data['EVI']
         resampled_data['vv']=resampled_data.index
         time_values=list(resampled_data['vv'])
