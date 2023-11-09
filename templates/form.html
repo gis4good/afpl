@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Collection Form</title>
+     <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #3498db, #2980b9);
+            text-align: center;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        .container {
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        label, input, button, p {
+            margin: 10px;
+            font-size: 16px; /* Adjust the font size as needed */
+        }
+        button {
+            background-color: #007BFF;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        button#submit-button {
+            background-color: black; /* Change button background color to black */
+        }
+        #selfieVideo {
+            display: none;
+        }
+        #selfieCanvas {
+            display: none;
+        }
+        #selfieImage {
+            display: none;
+        }
+        .date-input {
+            position: relative;
+        }
+        .custom-placeholder {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #1b0202d8; /* Adjust the color as needed */
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <form id="dataForm">
+        <h1>Data Collection Form</h1>
+        <input type="number" id="number" name="number" placeholder="Branch ID" required>
+        <input type="text" id="text" name="text" placeholder="Zone" required>
+        <input type="text" id="text" name="text" placeholder="District" required>
+        <input type="text" id="text" name="text" placeholder="State" required>
+        <input type="text" id="text" name="text" placeholder="Village Name" required>
+        <input type="number" id="number" name="number" placeholder="Loan ID" required>
+        <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
+        <div class="date-input">
+                <input type="date" id="date" name="date" required>
+                <span class="custom-placeholder">PTP Date</span>
+        </div>
+        
+        <video id="selfieVideo" autoplay></video>
+        <canvas id="selfieCanvas" style="display: none;"></canvas>
+        <img id="selfieImage" src="" alt="Selfie" width="200">
+
+        <button id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button>
+
+        <input type="hidden" id="selfie" name="selfie">
+
+        <input type="text" id="coordinates" readonly placeholder="Location">
+        <button onclick="getLocation()">Get Location</button>
+        <input type="hidden" id="latitude" name="latitude">
+        <input type="hidden" id="longitude" name="longitude">
+
+        <button type="submit" id="submit-button">Submit Form</button>
+    </form>
+
+    <script>
+        let selfieStream = null;
+        let capturingSelfie = false;
+
+        function toggleSelfieCapture() {
+            if (!capturingSelfie) {
+                startCaptureSelfie();
+            } else {
+                captureSelfie();
+            }
+        }
+
+        function startCaptureSelfie() {
+            const button = document.getElementById('selfieButton');
+            button.textContent = 'Capture Now';
+
+            const video = document.getElementById('selfieVideo');
+            selfieStream = null;
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    selfieStream = stream;
+                    capturingSelfie = true;
+                })
+                .catch(function (err) {
+                    alert('Failed to access the camera: ' + err);
+                });
+        }
+
+        function captureSelfie() {
+            if (selfieStream) {
+                const video = document.getElementById('selfieVideo');
+                const canvas = document.getElementById('selfieCanvas');
+                const context = canvas.getContext('2d');
+                const selfieImage = document.getElementById('selfieImage');
+
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+                const selfieDataUrl = canvas.toDataURL('image/jpeg');
+                document.getElementById('selfie').value = selfieDataUrl;
+
+                // Display the selfie image to the user
+                video.style.display = 'none';
+                selfieImage.src = selfieDataUrl;
+                selfieImage.style.display = 'block';
+
+                // Stop the camera stream
+                selfieStream.getTracks().forEach(track => track.stop());
+
+                // Reset the button text and state
+                document.getElementById('selfieButton').textContent = 'Start Capture';
+                capturingSelfie = false;
+            }
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(function (position) {
+                    if (position.coords.accuracy <= 10000000) {
+                        document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+                        document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                        document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                    } else {
+                        alert('Location accuracy is greater than 10 meters.');
+                    }
+                }, function (error) {
+                    alert('Error getting location: ' + error.message);
+                });
+            } else {
+                alert('Geolocation is not supported by your device.');
+            }
+        }
+    </script>
+</body>
+</html>
