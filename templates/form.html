@@ -81,13 +81,13 @@
         <canvas id="selfieCanvas" style="display: none;"></canvas>
         <img id="selfieImage" src="" alt="Selfie" width="200">
 
-        <button id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button>
+        <button type="button" id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button>
+
 
         <input type="hidden" id="selfie" name="selfie">
 
         <input type="text" id="coordinates" readonly placeholder="Location">
-        <button onclick="getLocation()">Get Location</button>
-        <input type="hidden" id="latitude" name="latitude">
+        <button type="button" onclick="getLocation()">Get Location</button><input type="hidden" id="latitude" name="latitude">
         <input type="hidden" id="longitude" name="longitude">
 
         <button type="submit" id="submit-button">Submit Form</button>
@@ -168,6 +168,15 @@
             } else {
                 alert('Geolocation is not supported by your device.');
             }
+        }
+        function validateForm() {
+            // Check if location is obtained before allowing form submission
+            const coordinates = document.getElementById('coordinates').value;
+            if (!coordinates) {
+                alert('Please click "Get Location" before submitting.');
+                return false;
+            }
+            return true;
         }
     </script>
 </body>
