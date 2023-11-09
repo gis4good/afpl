@@ -19,10 +19,10 @@ from matplotlib import pylab
 from matplotlib.animation import FuncAnimation
 from pylab import rcParams
 import ee,os
-service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
-credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
-ee.Initialize(credentials)
-os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+#service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
+#credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
+#ee.Initialize(credentials)
+#os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
 from keras.models import load_model
 from tensorflow.keras.utils import load_img
@@ -211,6 +211,8 @@ def leaf(file):
         return render_template('narisinghi.html')
     if file=='shankarampet':
         return render_template('shankarampet.html') 
+    if file=='form':
+        return render_template('form.html')     
 @app.route('/ai/',methods=['GET'])
 def ai():
     try:
