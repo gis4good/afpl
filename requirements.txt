@@ -19,6 +19,6 @@ matplotlib
 ipygee== 0.0.18
 google-auth
 pillow
-SQLAlchemy
+SQLAlchemy==1.4.46
 Flask-Cors
 psycopg2
