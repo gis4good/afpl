@@ -63,14 +63,15 @@
     </style>
 </head>
 <body>
-    <form id="dataForm">
+  <div class="container">  
+    <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
         <h1>Data Collection Form</h1>
-        <input type="number" id="number" name="number" placeholder="Branch ID" required>
-        <input type="text" id="text" name="text" placeholder="Zone" required>
-        <input type="text" id="text" name="text" placeholder="District" required>
-        <input type="text" id="text" name="text" placeholder="State" required>
-        <input type="text" id="text" name="text" placeholder="Village Name" required>
-        <input type="number" id="number" name="number" placeholder="Loan ID" required>
+        <input type="number" id="bid" name="bid" placeholder="Branch ID" required>
+        <input type="text" id="zone" name="zone" placeholder="Zone" required>
+        <input type="text" id="district" name="district" placeholder="District" required>
+        <input type="text" id="state" name="state" placeholder="State" required>
+        <input type="text" id="vila" name="vila" placeholder="Village Name" required>
+        <input type="number" id="lid" name="lid" placeholder="Loan ID" required>
         <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
         <div class="date-input">
                 <input type="date" id="date" name="date" required>
@@ -84,19 +85,19 @@
         <button type="button" id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button>
 
 
-        <input type="hidden" id="selfie" name="selfie">
 
         <input type="text" id="coordinates" readonly placeholder="Location">
         <button type="button" onclick="getLocation()">Get Location</button><input type="hidden" id="latitude" name="latitude">
         <input type="hidden" id="longitude" name="longitude">
 
-        <button type="submit" id="submit-button">Submit Form</button>
+        <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
     </form>
-
+  </div>
     <script>
         let selfieStream = null;
         let capturingSelfie = false;
-
+        let selfieCaptured = false;
+        let selfieDataUrl = null;
         function toggleSelfieCapture() {
             if (!capturingSelfie) {
                 startCaptureSelfie();
@@ -123,7 +124,19 @@
                     alert('Failed to access the camera: ' + err);
                 });
         }
+        function dataURLtoBlob(dataURL) {
+            const arr = dataURL.split(',');
+            const mime = arr[0].match(/:(.*?);/)[1];
+            const bstr = atob(arr[1]);
+            let n = bstr.length;
+            const u8arr = new Uint8Array(n);
 
+            while (n--) {
+                u8arr[n] = bstr.charCodeAt(n);
+            }
+
+            return new Blob([u8arr], { type: mime });
+        }
         function captureSelfie() {
             if (selfieStream) {
                 const video = document.getElementById('selfieVideo');
@@ -135,8 +148,28 @@
                 canvas.height = video.videoHeight;
                 context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                const selfieDataUrl = canvas.toDataURL('image/jpeg');
-                document.getElementById('selfie').value = selfieDataUrl;
+                selfieDataUrl = canvas.toDataURL('image/jpeg');
+                const selfieBlob = dataURLtoBlob(selfieDataUrl);
+                console.log(selfieBlob)
+                abc=12123
+                const formData = new FormData();
+                formData.append('selfie', selfieBlob);
+                console.log(document.getElementById('bid').value)
+                // Add other form data
+                formData.append('bid', document.getElementById('bid').value);
+                formData.append('zone', document.getElementById('zone').value);
+                formData.append('state', document.getElementById('state').value);
+                console.log(formData)
+                formData.append('vila', document.getElementById('vila').value);
+                formData.append('lid', document.getElementById('lid').value);
+                formData.append('phone', document.getElementById('phone').value);
+                formData.append('latitude', document.getElementById('latitude').value);
+                formData.append('longitude', document.getElementById('longitude').value);
+                console.log(formData)
+                // Add other form fields
+                 selfieCaptured = true;
+
+
 
                 // Display the selfie image to the user
                 video.style.display = 'none';
@@ -151,16 +184,16 @@
                 capturingSelfie = false;
             }
         }
-
+        
         function getLocation() {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(function (position) {
-                    if (position.coords.accuracy <= 10000000) {
+                    if (position.coords.accuracy <= 15) {
                         document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                         document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                         document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
                     } else {
-                        alert('Location accuracy is greater than 10 meters.');
+                        alert('Location accuracy is greater than 15 meters.');
                     }
                 }, function (error) {
                     alert('Error getting location: ' + error.message);
@@ -178,6 +211,38 @@
             }
             return true;
         }
+        function submitForm() {
+            // Capture selfie if not already captured
+            if (!selfieCaptured) {
+                console.log('reached')
+                captureSelfie();
+            }
+
+            // Validate form or perform any additional actions
+            // ...
+
+            // Submit the form data
+            const formData = new FormData(document.getElementById('dataForm'));
+            formData.append('selfie', selfieDataUrl);
+
+            fetch('https://afpldist.onrender.com/fdata/', {
+                method: 'POST',
+                body:formData ,
+            })
+            .then(response => response.json())
+            .then(data => {
+                // Handle the server response
+                console.log('Server Response:', data);
+                if (data) {
+                    alert('Successfully saved!'); // You can replace this with a more user-friendly message
+                    window.location.href = window.location.href; // Refresh the page
+        }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+            })
+             return false;
+        };
     </script>
 </body>
 </html>
