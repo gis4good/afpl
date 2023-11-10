@@ -7,32 +7,36 @@ Created on Thu Sep 29 10:50:37 2022
 
 
 from flask import Flask,jsonify,render_template
+from flask_cors import CORS, cross_origin
 import geopy.distance
 import chart as chart
 from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
+from sqlalchemy import create_engine 
 from io import StringIO
 from google.auth import compute_engine
 from matplotlib import pylab
 from matplotlib.animation import FuncAnimation
 from pylab import rcParams
-import ee,os
+import os
 #service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 #credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
 #ee.Initialize(credentials)
 #os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-from keras.models import load_model
-from tensorflow.keras.utils import load_img
+#from keras.models import load_model
+#from tensorflow.keras.utils import load_img
 
 from IPython.display import Image
 
 import pandas as pd
 import matplotlib
-
+engine = create_engine('postgresql://root:oJmXhoHDzuGG3IZHnbnrEnRQR7QqLR5Q@dpg-cl6p55oicrhc73csvf10-a.oregon-postgres.render.com/afpldb')
+conn = engine.connect()
 app=Flask(__name__)
+CORS(app)
 @app.route('/home/')
 def world():
     x='hello home'
@@ -326,6 +330,36 @@ def ai():
     except Exception as e:
         err={'Error':str(e)}
         return err
+
+@app.route('/fdata/',methods=['POST'])
+def fdata():
+        bid = request.form.get('bid')
+        zone = request.form.get('zone')
+        phone = request.form.get('phone')
+        date = request.form.get('date')
+        vila = request.form.get('vila')
+        lid = request.form.get('lid')
+        lat = request.form.get('latitude')
+        long = request.form.get('longitude')
+        selfie_base64 = request.form.get('selfie')
+        
+        
+        response_data = {
+           'name': bid,
+           'zone': zone,
+           'phone': phone,
+           'date': date,
+           'lat':lat,
+           'long':long,
+           'village':vila,
+           'ptp_date':date,
+           'lid':lid,
+           'selfie':selfie_base64,
+                   }
+        
+        rr=pd.DataFrame.from_records([response_data])
+        rr.to_sql('df',con=conn,if_exists='append')
+        return response_data 
 
         
         
