@@ -185,21 +185,51 @@
             }
         }
         
-        function getLocation() {
+         function customAlert(message) {
+                var alertContainer = document.createElement('div');
+                alertContainer.style.position = 'fixed';
+                alertContainer.style.top = '50%';
+                alertContainer.style.left = '50%';
+                alertContainer.style.transform = 'translate(-50%, -50%)';
+                alertContainer.style.background = '#fff';
+                alertContainer.style.border = '1px solid #ccc';
+                alertContainer.style.padding = '15px';
+                alertContainer.style.borderRadius = '5px';
+                alertContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+                alertContainer.style.zIndex = '1000';
+                
+                var alertText = document.createElement('p');
+                alertText.textContent = message;
+                alertContainer.appendChild(alertText);
+
+                document.body.appendChild(alertContainer);
+
+                // Hide the alert after 3 seconds (adjust as needed)
+                setTimeout(function() {
+                    document.body.removeChild(alertContainer);
+                }, 10000);
+                                }
+
+         function getLocation() {
             if (navigator.geolocation) {
-                navigator.geolocation.getCurrentPosition(function (position) {
-                    if (position.coords.accuracy <= 10000) {
-                        document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
-                        document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
-                        document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
-                    } else {
-                        alert('Location accuracy is greater than 15 meters.');
+                navigator.geolocation.getCurrentPosition(
+                    function (position) {
+                        if (position.coords.accuracy <= 15) {
+                            document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+                            document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                            document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                        } else {
+                            customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
+                            // Retry after a short delay
+                            setTimeout(getLocation, 3000); // 1000 milliseconds (1 second) delay
+                        }
+                    },
+                    function (error) {
+                        customAlert('Error getting location: ' + error.message);
                     }
-                }, function (error) {
-                    alert('Error getting location: ' + error.message);
-                });
+                );
             } else {
-                alert('Geolocation is not supported by your device.');
+                customAlert('Geolocation is not supported by your device.');
             }
         }
         function validateForm() {
