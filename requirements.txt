@@ -19,3 +19,5 @@ matplotlib
 ipygee== 0.0.18
 google-auth
 pillow
+SQLAlchemy
+Flask-Cors
