@@ -21,3 +21,4 @@ google-auth
 pillow
 SQLAlchemy
 Flask-Cors
+psycopg2
