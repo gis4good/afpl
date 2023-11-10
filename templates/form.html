@@ -214,7 +214,7 @@
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     function (position) {
-                        if (position.coords.accuracy <= 15) {
+                        if (position.coords.accuracy <= 15000000) {
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
