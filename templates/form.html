@@ -211,6 +211,7 @@
                                 }
 
          function getLocation() {
+            var shouldContinue = true;
             if (navigator.onLine) {
                 if (navigator.geolocation) {
                     // Function to handle successful location updates
@@ -219,10 +220,13 @@
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                            shouldContinue = false;
                         } else {
                             customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
                             // Retry after a short delay (2 seconds)
-                            setTimeout(getLocation, 2000);
+                            if (shouldContinue) {
+                                setTimeout(getLocation, 2000);
+                            }
                         }
                     }
 
@@ -234,7 +238,7 @@
                     // Options for geolocation (optional)
                     var options = {
                         enableHighAccuracy: true,  // Request high accuracy
-                        timeout: 70000,             // Maximum time (in milliseconds) to wait for location data
+                        timeout: 30000,             // Maximum time (in milliseconds) to wait for location data
                         maximumAge: 0              // Maximum age (in milliseconds) of cached location data
                     };
 
