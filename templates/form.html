@@ -169,8 +169,6 @@
 
                 selfieDataUrl = canvas.toDataURL('image/jpeg');
                 const selfieBlob = dataURLtoBlob(selfieDataUrl);
-                console.log(selfieBlob)
-                abc = 12123
                 const formData = new FormData();
                 formData.append('selfie', selfieBlob);
                 console.log(document.getElementById('bid').value)
@@ -245,7 +243,7 @@
 
                     // Function to handle successful location updates
                     function successCallback(position) {
-                        if (position.coords.accuracy <= 15) {
+                        if (position.coords.accuracy <= 10) {
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
@@ -256,7 +254,7 @@
                                     navigator.geolocation.clearWatch(watchId);
                                 }
                         } else {
-                            customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
+                            customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 10 meters. Retrying...`);
                         }
                     }
 
