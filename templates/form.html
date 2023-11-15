@@ -232,7 +232,7 @@
                         // Hide the alert after 3 seconds (adjust as needed)
                         setTimeout(function () {
                             document.body.removeChild(alertContainer);
-                        }, 10000);
+                        }, 3000);
 }
 
         function getLocation() {
@@ -247,6 +247,7 @@
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                            customAlert(`Great,Location accuracy is ${position.coords.accuracy} meters, which is below than 10 meters. Registering...`);
 
                             // Set the flag to true to indicate accuracy is achieved
                             accuracyAchieved = true;
