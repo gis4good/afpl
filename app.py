@@ -360,7 +360,23 @@ def fdata():
         rr=pd.DataFrame.from_records([response_data])
         rr.to_sql('df',con=conn,if_exists='append')
         return response_data 
+@app.route('/sugg/',methods=['GET'])
+def get_suggestions():
+    input_value = request.args.get('input', '')
+    input_value=input_value.capitalize()
+    db=request.args.get('db')
+    # Handle empty input gracefully
+    if not input_value:
+        return jsonify([])
 
+    # Execute a query to get suggestions
+    query = text(f'SELECT "{db}" FROM public.{db} WHERE "{db}" LIKE :input_value LIMIT 5')
+    with conn.connect() as connection:
+        result = connection.execute(query, input_value=f'{input_value}%')
+        suggestions = [row[0] for row in result.fetchall()]
+
+    # Return suggestions as JSON
+    return jsonify(suggestions)
         
         
 
