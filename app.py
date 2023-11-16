@@ -16,7 +16,7 @@ import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
 from sqlalchemy import create_engine 
 from io import StringIO
-from google.auth import compute_engine
+from google.auth import compute_engine,text
 from matplotlib import pylab
 from matplotlib.animation import FuncAnimation
 from pylab import rcParams
