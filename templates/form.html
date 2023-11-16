@@ -2,22 +2,33 @@
 <html>
 
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <title>Data Collection Form</title>
     <style>
         body {
-            font-family: Arial, sans-serif;
-            background: linear-gradient(to bottom, #3498db, #2980b9);
-            text-align: center;
-            margin: 0;
-            padding: 0;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            height: 100vh;
-        }
+                font-family: Arial, sans-serif;
+                background: linear-gradient(to bottom, #3498db, #2980b9);
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+
+                /* Add the background image */
+                background-image: url('https://www.dropbox.com/s/jlx09kphsjz9rq7/ai.jpg?raw=1');
+                /* Set background image size and properties as needed */
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+
+
+        
 
         .container {
-            background-color: #fff;
+            background-color: #79588b;
             padding: 20px;
             border-radius: 10px;
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
@@ -84,11 +95,11 @@
     <div class="container">
         <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
             <h1>Data Collection Form</h1>
-            <input type="number" id="bid" name="bid" placeholder="Branch ID" required>
-            <input type="text" id="zone" name="zone" placeholder="Zone" required>
+            <input type="text" id="bid" name="bid" placeholder="Branch Name" required required list="suggestions-bid">
+            <input type="text" id="zone" name="zone" placeholder="Zone" required required list="suggestions-zone">
             <input type="text" id="district" name="district" placeholder="District" required>
             <input type="text" id="state" name="state" placeholder="State" required>
-            <input type="text" id="vila" name="vila" placeholder="Village Name" required>
+            <input type="text" id="vila" name="vila" placeholder="Village Name" required >
             <input type="number" id="lid" name="lid" placeholder="Loan ID" required>
             <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
             <div class="date-input">
@@ -110,6 +121,8 @@
             <input type="hidden" id="longitude" name="longitude">
 
             <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
+            <datalist id="suggestions-bid"></datalist>
+            <datalist id="suggestions-zone"></datalist>
         </form>
     </div>
     <script>
@@ -169,6 +182,8 @@
 
                 selfieDataUrl = canvas.toDataURL('image/jpeg');
                 const selfieBlob = dataURLtoBlob(selfieDataUrl);
+                console.log(selfieBlob)
+                abc = 12123
                 const formData = new FormData();
                 formData.append('selfie', selfieBlob);
                 console.log(document.getElementById('bid').value)
@@ -247,6 +262,7 @@
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+
                             // Set the flag to true to indicate accuracy is achieved
                             accuracyAchieved = true;
                             if (watchId) {
@@ -286,8 +302,42 @@
             }
         }
 
-  
+        const apiUrl = 'https://afpldist.onrender.com';
         // Start the getLocation function initially
+        function setupAutoSuggestion(inputId, dataListId, dbId) {
+            const input = document.getElementById(inputId);
+            const dataList = document.getElementById(dataListId);
+
+            // Use lodash debounce to add a 2-second delay
+            const handleInputDebounced = _.debounce(async () => {
+                const inputValue = input.value.trim();
+
+                // Clear previous suggestions
+                dataList.innerHTML = '';
+
+                // Make a request to the server for suggestions only if the input is not empty
+                if (inputValue !== '') {
+                    const response = await fetch(`${apiUrl}/sugg?input=${inputValue}&db=${dbId}`);
+                    const suggestions = await response.json();
+
+                    // Populate datalist with suggestions
+                    suggestions.forEach((suggestion) => {
+                        const option = document.createElement('option');
+                        option.value = suggestion;
+                        dataList.appendChild(option);
+                    });
+                }
+            }, 2000); // 2000 milliseconds debounce time (2 seconds)
+
+            // Attach the debounced function to the input event
+            input.addEventListener('input', handleInputDebounced);
+        }
+
+
+        // Apply the auto-suggestion function to specific text boxes with different IDs and database IDs
+        setupAutoSuggestion('bid', 'suggestions-bid', 'branch');
+        setupAutoSuggestion('zone', 'suggestions-zone', 'zone');
+
 
         function validateForm() {
             // Check if location is obtained before allowing form submission
