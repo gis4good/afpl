@@ -14,9 +14,9 @@ from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
-from sqlalchemy import create_engine 
+from sqlalchemy import create_engine,text
 from io import StringIO
-from google.auth import compute_engine,text
+from google.auth import compute_engine
 from matplotlib import pylab
 from matplotlib.animation import FuncAnimation
 from pylab import rcParams
