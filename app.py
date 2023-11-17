@@ -9,7 +9,7 @@ Created on Thu Sep 29 10:50:37 2022
 from flask import Flask,jsonify,render_template
 from flask_cors import CORS, cross_origin
 import geopy.distance
-import chart as chart
+#import chart as chart
 from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
@@ -17,9 +17,9 @@ from twilio.twiml.messaging_response import MessagingResponse
 from sqlalchemy import create_engine,text
 from io import StringIO
 from google.auth import compute_engine
-from matplotlib import pylab
-from matplotlib.animation import FuncAnimation
-from pylab import rcParams
+#from matplotlib import pylab
+#from matplotlib.animation import FuncAnimation
+#from pylab import rcParams
 import os
 #service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
 #credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
