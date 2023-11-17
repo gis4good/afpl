@@ -341,6 +341,15 @@ def fdata():
         lid = request.form.get('lid')
         lat = request.form.get('latitude')
         long = request.form.get('longitude')
+        cn = request.form.get('cn')
+        pin = request.form.get('pincode')
+        yq=request.form.get('yesNoQuestion')
+        ar = request.form.get('number1')
+        mr = request.form.get('number2')
+        cd = request.form.get('question')
+
+
+
         selfie_base64 = request.form.get('selfie')
         
         
@@ -348,18 +357,24 @@ def fdata():
            'name': bid,
            'zone': zone,
            'phone': phone,
-           'date': date,
            'lat':lat,
            'long':long,
            'village':vila,
+           'client_name':cn,
+           'pincode':pin,
+           'met_with_client':yq,
+           'collection_done':cd,
+           'amount_received':ar,
+           'mr_number':mr,
            'ptp_date':date,
            'lid':lid,
            'selfie':selfie_base64,
                    }
         
         rr=pd.DataFrame.from_records([response_data])
-        rr.to_sql('df',con=conn,if_exists='append')
+        rr.to_sql('df',con=conn,if_exists='append',index=False)
         return response_data 
+
 @app.route('/sugg/',methods=['GET'])
 def get_suggestions():
     input_value = request.args.get('input', '')
