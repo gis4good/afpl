@@ -22,3 +22,4 @@ pillow
 SQLAlchemy==1.4.46
 Flask-Cors
 psycopg2
+importlib.metadata
