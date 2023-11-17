@@ -17,7 +17,7 @@
                 height: 100vh;
 
                 /* Add the background image */
-                background-image: url('https://www.dropbox.com/s/jlx09kphsjz9rq7/ai.jpg?raw=1');
+                background-image: url('https://img.freepik.com/free-vector/gradient-abstract-background_23-2149131346.jpg?w=996&t=st=1700191707~exp=1700192307~hmac=f43673dbaacb702ed90d460ea1af94f156e19abab63e3aeafbddad405f459c04');
                 /* Set background image size and properties as needed */
                 background-size: cover;
                 background-position: center;
@@ -88,6 +88,14 @@
             /* Adjust the color as needed */
             pointer-events: none;
         }
+
+        select {
+            width: 95%;
+            padding: 6px;
+            margin: 10px 0;
+            margin-left: 10px; 
+            box-sizing: border-box;
+        }
     </style>
 </head>
 
@@ -97,12 +105,32 @@
             <h1>Data Collection Form</h1>
             <input type="text" id="bid" name="bid" placeholder="Branch Name" required required list="suggestions-bid">
             <input type="text" id="zone" name="zone" placeholder="Zone" required required list="suggestions-zone">
-            <input type="text" id="district" name="district" placeholder="District" required>
-            <input type="text" id="state" name="state" placeholder="State" required>
             <input type="text" id="vila" name="vila" placeholder="Village Name" required >
+            <input type="text" id="pincode" name="pincode" placeholder="Pincode" required >
             <input type="number" id="lid" name="lid" placeholder="Loan ID" required>
+            <input type="text" id="cn" name="cn" placeholder="Client Name" required >
             <input type="tel" id="phone" name="phone" placeholder="Phone Number" required>
-            <div class="date-input">
+            
+            <select id="yesNoQuestion" name="yesNoQuestion" required>
+                <option value="" disabled selected hidden>Met with Client?</option>
+                <option value="yes">Yes</option>
+                <option value="no">No</option>
+            </select>
+
+            <select id="question" onchange="showInputs()" required>
+                <option value="" disabled selected hidden>Collection Done?</option>
+                <option value="full">Full</option>
+                <option value="part">Part</option>
+                <option value="nopart">No Part</option>                
+            </select>
+
+    
+            <div id="additionalInputs" style="display: none;">
+                <input type="number" id="number1" name="number1" placeholder="Amount Received">
+                <input type="number" id="number2" name="number2" placeholder="MR Number">
+            </div>
+
+            <div id="dateInputContainer" style="display: none;" class="date-input">
                 <input type="date" id="date" name="date" required>
                 <span class="custom-placeholder">PTP Date</span>
             </div>
@@ -130,6 +158,7 @@
         let capturingSelfie = false;
         let selfieCaptured = false;
         let selfieDataUrl = null;
+        let cn=null;
         function toggleSelfieCapture() {
             if (!capturingSelfie) {
                 startCaptureSelfie();
@@ -137,7 +166,38 @@
                 captureSelfie();
             }
         }
+        function showInputs() {
+            const  questionSelect = document.getElementById("question");
+            const  additionalInputs = document.getElementById("additionalInputs");
+            const  date = document.getElementById("dateInputContainer");
+            // Reset previous selections
+            document.getElementById("number1").value = "";
+            document.getElementById("number2").value = "";
+            document.getElementById("date").value = ""
+            const cn=questionSelect.value
 
+            if (questionSelect.value === "full") {
+                additionalInputs.style.display = "block";
+                dateInputContainer.style.display = "none";
+                document.getElementById("number1").setAttribute("required", "true");
+                document.getElementById("number2").setAttribute("required", "true");
+                document.getElementById("date").removeAttribute("required");
+            } 
+            if (questionSelect.value === "part") {
+                dateInputContainer.style.display = "block";
+                additionalInputs.style.display = "block";
+                document.getElementById("number1").setAttribute("required", "true");
+                document.getElementById("number2").setAttribute("required", "true");
+                document.getElementById("date").setAttribute("required","true");
+            }
+            if (questionSelect.value === "nopart") {
+                dateInputContainer.style.display = "block";
+                additionalInputs.style.display = "none";
+                document.getElementById("number1").removeAttribute("required");
+                document.getElementById("number2").removeAttribute("required");
+                document.getElementById("date").setAttribute("required","true");
+            }
+        }
         function startCaptureSelfie() {
             const button = document.getElementById('selfieButton');
             button.textContent = 'Capture Now';
@@ -190,11 +250,12 @@
                 // Add other form data
                 formData.append('bid', document.getElementById('bid').value);
                 formData.append('zone', document.getElementById('zone').value);
-                formData.append('state', document.getElementById('state').value);
                 console.log(formData)
                 formData.append('vila', document.getElementById('vila').value);
+                formData.append('pincode', document.getElementById('pincode').value);
                 formData.append('lid', document.getElementById('lid').value);
                 formData.append('phone', document.getElementById('phone').value);
+                formData.append('cn', document.getElementById('cn').value);
                 formData.append('latitude', document.getElementById('latitude').value);
                 formData.append('longitude', document.getElementById('longitude').value);
                 console.log(formData)
@@ -354,10 +415,9 @@
         console.log('reached')
         captureSelfie();
     }
-
     // Validate form fields
     const form = document.getElementById('dataForm');
-    const inputs = form.querySelectorAll('input[required]');
+    const inputs = form.querySelectorAll('input[required], select[required]');
     
     for (const input of inputs) {
         if (!input.value.trim()) {
@@ -375,8 +435,12 @@
 
     // Submit the form data
     const formData = new FormData(form);
-    formData.append('selfie', selfieDataUrl);
+    const questionDropdown = document.getElementById('question');
+    const selectedOption = questionDropdown.options[questionDropdown.selectedIndex].value;
 
+    // Now, you can use the "selectedOption" variable to save it in the database or perform other action
+    formData.append('selfie', selfieDataUrl);
+    formData.append('question', selectedOption);
     fetch('https://afpldist.onrender.com/fdata/', {
         method: 'POST',
         body: formData,
