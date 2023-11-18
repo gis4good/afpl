@@ -43,9 +43,9 @@ def world():
     x='hello home'
     return x
     
-@app.route('/')
-def index():
-    return "<h1>Welcome to our server !!</h1>"
+#@app.route('/')
+#def index():
+    #return "<h1>Welcome to our server !!</h1>"
 
 
 @app.route('/dist/',methods=['GET'])
