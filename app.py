@@ -6,7 +6,7 @@ Created on Thu Sep 29 10:50:37 2022
 """
 
 
-from flask import Flask,jsonify,render_template
+from flask import Flask,jsonify,render_template,redirect, url_for, session
 from flask_cors import CORS, cross_origin
 import geopy.distance
 #import chart as chart
@@ -36,6 +36,7 @@ import matplotlib
 engine = create_engine('postgresql://root:oJmXhoHDzuGG3IZHnbnrEnRQR7QqLR5Q@dpg-cl6p55oicrhc73csvf10-a.oregon-postgres.render.com/afpldb')
 conn = engine.connect()
 app=Flask(__name__)
+app.secret_key = 'rabbit12345' 
 CORS(app)
 @app.route('/home/')
 def world():
@@ -393,7 +394,48 @@ def get_suggestions():
     # Return suggestions as JSON
     return jsonify(suggestions)
         
-        
+ @app.route('/')
+def index():
+    # Check if the user is logged in before rendering the HTML template
+    if 'username' in session:
+        return render_template('form.html')
+    else:
+        # Redirect to the login page if the user is not logged in
+        return redirect(url_for('login'))
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    if request.method == 'POST':
+        # Get username and password from the login form
+        username = request.form.get('username')
+        password = request.form.get('password')
+        print(username,password)
+        # Check credentials against the database
+        if check_credentials(username, password):
+            # Store the username in the session to mark the user as logged in
+            session['username'] = username
+            # Redirect to the main page after successful login
+            return redirect(url_for('index'))
+        else:
+            # Render the login page again with an error message
+            return render_template('login.html', error='Invalid credentials')
+
+    # Render the login page for GET requests
+    return render_template('login.html')
+
+@app.route('/logout')
+def logout():
+    # Clear the session to log the user out
+    session.clear()
+    # Redirect to the login page after logout
+    return redirect(url_for('login'))
+
+def check_credentials(username, password):
+    # Implement your logic to check credentials against the database
+    # Return True if the credentials are correct, False otherwise
+    # This is a placeholder, replace it with your actual database logic
+    return username == 'admin' and password == 'password'
+       
 
 if __name__ == '__main__':
     app.run() 
