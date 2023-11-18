@@ -394,7 +394,7 @@ def get_suggestions():
     # Return suggestions as JSON
     return jsonify(suggestions)
         
- @app.route('/')
+@app.route('/')
 def index():
     # Check if the user is logged in before rendering the HTML template
     if 'username' in session:
