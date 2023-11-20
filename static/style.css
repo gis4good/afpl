@@ -261,11 +261,3 @@ button:hover{
   text-decoration: underline;
 }
 
-
-.logo {
-  position: absolute;
-  top: 10px;
-  left: 320px; /* Adjust the left position as needed to move it right */
-  max-width: 100px;
-  max-height: 50px;
-}
