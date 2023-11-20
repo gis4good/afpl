@@ -324,7 +324,7 @@
 
                     // Function to handle successful location updates
                     function successCallback(position) {
-                        if (position.coords.accuracy <= 1500000) {
+                        if (position.coords.accuracy <= 15) {
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
