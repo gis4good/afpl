@@ -174,14 +174,11 @@ body{
   height: auto;
   padding: 40px 35px 60px;
   box-sizing: border-box;
-  border: 1px solid black;
-  border-radius: 5px;
-  box-shadow: inset 0 0 1px #272727;
   background: url('https://www.dropbox.com/scl/fi/1fcoszy21t0nqn2siqoek/ANNAPURNA-Finance.png?rlkey=c2aafdpo134k9o1xw21lcqdlu&raw=1') center/cover no-repeat; /* Replace 'path-to-your-image.jpg' with the actual path to your background image */
 }
 .text{
   font-size: 30px;
-  color: #c7c7c7;
+  color: #0a0000;
   font-weight: 600;
   letter-spacing: 2px;
 }
@@ -210,6 +207,7 @@ form .field{
   font-size: 19px;
   color: #868686;
   padding: 0 15px;
+  opacity: 85%;
   border-radius: 0 5px 5px 0;
   border: 1px solid #444;
   caret-color: #339933;
