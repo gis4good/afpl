@@ -36,7 +36,12 @@
             width: 100%;
             max-width: 400px;
         }
-
+        .logo {
+            position: absolute;
+            left: 10px;
+            width: 50px; /* Adjust the width as needed */
+            height: auto; /* Maintain aspect ratio */
+        }
         form {
             display: flex;
             flex-direction: column;
@@ -106,6 +111,7 @@
 
 <body>
     <div class="container">
+        <img src="https://www.dropbox.com/scl/fi/1fcoszy21t0nqn2siqoek/ANNAPURNA-Finance.png?rlkey=c2aafdpo134k9o1xw21lcqdlu&raw=1" alt="Logo" class="logo">
         <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
             <h1>Client Visit Data Collection Form</h1>
             <input type="text" id="bid" name="bid" placeholder="Branch Name" required required list="suggestions-bid">
