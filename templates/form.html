@@ -4,7 +4,7 @@
 <head>
     <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
     <title>Client Visit Data COllection Form</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <style>
         body {
                 font-family: Arial, sans-serif;
@@ -40,7 +40,7 @@
             position: absolute;
             left: 10px;
             width: 50px; /* Adjust the width as needed */
-            top: 25px;
+            top: 20px;
             height: auto; /* Maintain aspect ratio */
         }
         form {
@@ -333,7 +333,7 @@
 
                     // Function to handle successful location updates
                     function successCallback(position) {
-                        if (position.coords.accuracy <= 15) {
+                        if (position.coords.accuracy <= 1500000) {
                             document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                             document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                             document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
