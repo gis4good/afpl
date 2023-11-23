@@ -40,7 +40,7 @@
             position: absolute;
             left: 10px;
             width: 50px; /* Adjust the width as needed */
-            top: 25px;
+            top: 20px;
             height: auto; /* Maintain aspect ratio */
         }
         form {
@@ -161,11 +161,14 @@
             <input type="hidden" id="longitude" name="longitude">
 
             <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
+            <button type="button" id="submitOfflineDataButton" onclick="submitOfflineData()">Submit Offline Data</button>
+
             <datalist id="suggestions-bid"></datalist>
             <datalist id="suggestions-zone"></datalist>
         </form>
     </div>
     <script>
+        let isSubmittingOfflineData = false;
         let selfieStream = null;
         let capturingSelfie = false;
         let selfieCaptured = false;
@@ -324,7 +327,6 @@
 }
 
         function getLocation() {
-            if (navigator.onLine) {
                 if (navigator.geolocation) {
                     let accuracyAchieved = false; // Flag to track if accuracy is achieved
                     let watchId;
@@ -370,9 +372,6 @@
                 } else {
                     customAlert('Geolocation is not supported by your device.');
                 }
-            } else {
-                customAlert('You are currently offline. Please connect to the internet and try again.');
-            }
         }
 
         const apiUrl = 'https://afpldist.onrender.com';
@@ -410,7 +409,65 @@
         // Apply the auto-suggestion function to specific text boxes with different IDs and database IDs
         setupAutoSuggestion('bid', 'suggestions-bid', 'branch');
         setupAutoSuggestion('zone', 'suggestions-zone', 'zone');
+        function formDataToJSON(formData) {
+            const json = {};
+            formData.forEach((value, key) => {
+                json[key] = value;
+            });
+            return JSON.stringify(json);
+        }
 
+        // Function to save offline submission
+        function saveOfflineSubmission(formData) {
+            const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
+            const serializedData = formDataToJSON(formData);
+            offlineSubmissions.push(serializedData);
+            localStorage.setItem('offlineSubmissions', JSON.stringify(offlineSubmissions));
+            window.location.href = window.location.href;
+        }
+        async function submitOfflineData() {
+                if (isSubmittingOfflineData) {
+                    console.log('Already submitting offline data. Aborting.');
+                    return;
+                }
+
+                isSubmittingOfflineData = true;
+
+                console.log('submitOfflineData function called');
+                const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
+
+                // Check if there are offline submissions to process
+                if (offlineSubmissions.length > 0) {
+                    // Loop through each offline submission
+                    for (const serializedData of offlineSubmissions) {
+                        try {
+                            // Parse the serialized data back to FormData
+                            const formData = new FormData();
+                            const jsonData = JSON.parse(serializedData);
+                            for (const key in jsonData) {
+                                formData.append(key, jsonData[key]);
+                            }
+
+                            // Submit the offline form data
+                            await submitFormData(formData);
+                        } catch (error) {
+                            console.error('Error submitting offline data:', error);
+                            // Handle the error as needed
+                        }
+                    }
+
+                    // Clear offline submissions after successful submission
+                    localStorage.removeItem('offlineSubmissions');
+
+                    // Reload the page
+                    window.location.href = window.location.href;
+                } else {
+                    console.log('No offline submissions available.');
+                    alert('No offline submissions available.');
+                }
+
+                isSubmittingOfflineData = false;
+            }
 
         function validateForm() {
             // Check if location is obtained before allowing form submission
@@ -466,25 +523,41 @@
     // Now, you can use the "selectedOption" variable to save it in the database or perform other action
     formData.append('selfie', selfieDataUrl);
     formData.append('question', selectedOption);
-    fetch('https://afpldist.onrender.com/fdata/', {
+    console.log(2,formData)
+
+    if (navigator.onLine) {
+        // Submit the form data to the server
+        submitFormData(formData);
+    } else {
+        // Save the form data offline
+        saveOfflineSubmission(formData);
+    }
+    return false;
+};
+
+
+function submitFormData(formData) {
+    return fetch('https://afpldist.onrender.com/fdata/', {
         method: 'POST',
         body: formData,
     })
-        .then(response => response.json())
-        .then(data => {
-            // Handle the server response
-            console.log('Server Response:', data);
-            if (data) {
+    .then(response => response.json())
+    .then(data => {
+        console.log('Server Response:', data);
+        // Handle the server response as needed
+        if (data) {
                 alert('Successfully saved!'); // You can replace this with a more user-friendly message
                 window.location.href = window.location.href; // Refresh the page
             }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-        })
-    return false;
-};
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        throw error; // Rethrow the error to handle it in the calling function
+    });
+}
+
+//document.getElementById('submitOfflineDataButton').addEventListener('click', submitOfflineData);
     </script>
 </body>
 
-</html>
+</html> 
