@@ -367,6 +367,7 @@
                     const checkAccuracy = setInterval(function () {
                         if (accuracyAchieved) {
                             clearInterval(checkAccuracy); // Stop the loop
+                            navigator.geolocation.clearWatch(watchId);
                         }
                     }, 1000); // Check every second (adjust as needed)
                 } else {
@@ -423,13 +424,9 @@
             const serializedData = formDataToJSON(formData);
             offlineSubmissions.push(serializedData);
             localStorage.setItem('offlineSubmissions', JSON.stringify(offlineSubmissions));
-            const form = document.getElementById('dataForm');
-                if (form) {
-                    form.reset();
-                }
-    // Reload the page without hitting the server
-                    location.reload();
+            clearForm()
                         }
+        
         async function submitOfflineData() {
                 if (isSubmittingOfflineData) {
                     console.log('Already submitting offline data. Aborting.');
@@ -561,7 +558,45 @@ function submitFormData(formData) {
     });
 }
 
-//document.getElementById('submitOfflineDataButton').addEventListener('click', submitOfflineData);
+function clearForm() {
+    const form = document.getElementById('dataForm'); // Replace 'dataForm' with the actual ID of your form
+
+    // Reset text input, textarea, and select elements
+    form.querySelectorAll('input[type=text], input[type=number], input[type=tel], textarea, select').forEach(element => {
+        element.value = '';
+    });
+
+    // Reset radio buttons and checkboxes
+    form.querySelectorAll('input[type=radio], input[type=checkbox]').forEach(element => {
+        element.checked = false;
+    });
+
+    // Clear any error styling
+    form.querySelectorAll('.error').forEach(element => {
+        element.classList.remove('error');
+    });
+
+    // Reset other specific elements
+    document.getElementById('selfieImage').src = ''; // Reset the selfie image
+    document.getElementById('selfieVideo').style.display = 'none'; // Hide the selfie video
+    document.getElementById('selfieCanvas').style.display = 'none'; // Hide the selfie canvas
+    document.getElementById('selfieImage').style.display = 'none'; // Hide the selfie image
+
+    // Clear any custom placeholders
+    form.querySelectorAll('.custom-placeholder').forEach(element => {
+        element.textContent = '';
+    });
+
+    // Clear geolocation-related values
+    document.getElementById('coordinates').value = ''; // Clear the coordinates input
+    document.getElementById('latitude').value = ''; // Clear the latitude input
+    document.getElementById('longitude').value = ''; // Clear the longitude input
+
+    // Stop geolocation watch process
+    // Optionally, scroll to the top of the form
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
     </script>
 </body>
 
