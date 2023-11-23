@@ -325,55 +325,48 @@
                             document.body.removeChild(alertContainer);
                         }, 10000);
 }
+                    
+                     let watchId
+  
 
-        function getLocation() {
-                if (navigator.geolocation) {
-                    let accuracyAchieved = false; // Flag to track if accuracy is achieved
-                    let watchId;
-
-                    // Function to handle successful location updates
-                    function successCallback(position) {
-                        if (position.coords.accuracy <= 15) {
-                            document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
-                            document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
-                            document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
-
-                            // Set the flag to true to indicate accuracy is achieved
-                            accuracyAchieved = true;
-                            if (watchId) {
-                                    navigator.geolocation.clearWatch(watchId);
-                                }
-                        } else {
-                            customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
-                        }
-                    }
-
-                    // Function to handle errors
-                    function errorCallback(error) {
-                        customAlert('Error getting location: ' + error.message);
-                    }
-
-                    // Options for geolocation (optional)
-                    var options = {
-                        enableHighAccuracy: true,  // Request high accuracy
-                        timeout: 30000,             // Maximum time (in milliseconds) to wait for location data
-                        maximumAge: 0              // Maximum age (in milliseconds) of cached location data
-                    };
-
-                    // Start watching for position changes
-                    navigator.geolocation.watchPosition(successCallback, errorCallback, options);
-
-                    // Check for accuracy flag in a loop and exit the function when achieved
-                    const checkAccuracy = setInterval(function () {
-                        if (accuracyAchieved) {
-                            clearInterval(checkAccuracy); // Stop the loop
-                            navigator.geolocation.clearWatch(watchId);
-                        }
-                    }, 1000); // Check every second (adjust as needed)
-                } else {
-                    customAlert('Geolocation is not supported by your device.');
-                }
+                     function getLocation() {
+    if (navigator.geolocation) {
+        // Function to handle successful location updates
+        function successCallback(position) {
+            if (position.coords.accuracy <= 1500000) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                stopGeolocation(); // Stop geolocation after getting the desired accuracy
+            } else {
+                customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
+            }
         }
+
+        // Function to handle errors
+        function errorCallback(error) {
+            customAlert('Error getting location: ' + error.message);
+        }
+
+        // Options for geolocation (optional)
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        };
+
+        // Start watching for position changes
+        watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+    } else {
+        customAlert('Geolocation is not supported by your device.');
+    }
+}
+function stopGeolocation() {
+    if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null; // Reset the watchId variable
+    }
+}
 
         const apiUrl = 'https://afpldist.onrender.com';
         // Start the getLocation function initially
@@ -588,9 +581,13 @@ function clearForm() {
     });
 
     // Clear geolocation-related values
+    stopGeolocation()
     document.getElementById('coordinates').value = ''; // Clear the coordinates input
     document.getElementById('latitude').value = ''; // Clear the latitude input
     document.getElementById('longitude').value = ''; // Clear the longitude input
+    document.getElementById("number1").value='';
+    document.getElementById("number2").value='';
+    document.getElementById("date").value='';
 
     // Stop geolocation watch process
     // Optionally, scroll to the top of the form
