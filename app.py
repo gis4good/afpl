@@ -434,7 +434,11 @@ def check_credentials(username, password):
     # Implement your logic to check credentials against the database
     # Return True if the credentials are correct, False otherwise
     # This is a placeholder, replace it with your actual database logic
-    return username == 'admin' and password == 'password'
+    us=pd.read_sql(f"""select * from public.pass where "Emp ID"='{username}' and "password"='{password}'""" ,conn)
+    if len(us)==1:
+        return username == us['Emp ID'][0] and password == us['password'][0]
+    else:
+        return False
        
 
 if __name__ == '__main__':
