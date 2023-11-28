@@ -379,7 +379,7 @@ def fdata():
 @app.route('/sugg/',methods=['GET'])
 def get_suggestions():
     input_value = request.args.get('input', '')
-    input_value=input_value.capitalize()
+    input_value=input_value.title()
     db=request.args.get('db')
     # Handle empty input gracefully
     if not input_value:
