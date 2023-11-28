@@ -151,7 +151,7 @@
             <canvas id="selfieCanvas" style="display: none;"></canvas>
             <img id="selfieImage" src="" alt="Selfie" width="200">
 
-            <button type="button" id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button>
+            <button type="button" id="selfieButton" onclick="toggleSelfieCapture()">Client Selfie</button required>
 
 
 
@@ -361,10 +361,6 @@
         customAlert('Geolocation is not supported by your device.');
     }
 }
-if (!selfieCaptured) {
-    alert('Please capture a selfie before submitting.');
-    return false;
-}        
 function stopGeolocation() {
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
@@ -479,10 +475,7 @@ function stopGeolocation() {
         }
         function submitForm() {
     // Capture selfie if not already captured
-    if (!selfieCaptured) {
-        console.log('reached')
-        captureSelfie();
-    }
+   
     // Validate form fields
     const form = document.getElementById('dataForm');
     const inputs = form.querySelectorAll('input[required], select[required]');
@@ -506,7 +499,10 @@ function stopGeolocation() {
             return false;
         }
     }
-
+    if (!selfieCaptured) {
+    alert('Please capture a selfie before submitting.');
+    return false;
+}
     // Check if location is obtained before allowing form submission
     const coordinates = document.getElementById('coordinates').value;
     if (!coordinates) {
