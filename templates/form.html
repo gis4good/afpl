@@ -361,6 +361,10 @@
         customAlert('Geolocation is not supported by your device.');
     }
 }
+if (!selfieCaptured) {
+    alert('Please capture a selfie before submitting.');
+    return false;
+}        
 function stopGeolocation() {
     if (watchId) {
         navigator.geolocation.clearWatch(watchId);
