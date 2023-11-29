@@ -116,16 +116,14 @@
         <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
             <h1>Client Spouse Data Collection Form</h1>
             <input type="text" id="bid" name="bid" placeholder="Branch Name" required required list="suggestions-bid">
-            <div id="branchWarning" class="warning"></div>
             <input type="text" id="zone" name="zone" placeholder="Zone" required required list="suggestions-zone">
-            <div id="zoneWarning" class="warning"></div>
-            <input type="number" id="staff" name="staff" placeholder="Staff Imp.ID" required >
+            <input type="number" id="staff" name="staff" placeholder="Staff Emp.ID" required >
             <input type="number" id="mid" name="mid" placeholder="Member ID" required>
             <input type="number" id="lid" name="lid" placeholder="Loan ID" required>
             <input type="text" id="mname" name="mname" placeholder="Member Name" required >
-            <input type="text" id="sname" name="sname" placeholder="Spouse Name(Husbamd)" required >
+            <input type="text" id="sname" name="sname" placeholder="Spouse Name(Husband)" required >
             <input type="text" id="kyc" name="kyc" placeholder="KYC Type (Voter,etc)" required >
-            <input type="number" id="kycid" name="kycid" placeholder="KYC ID" required>
+            <input type="text" id="kycid" name="kycid" placeholder="KYC ID" required>
      
 
             <video id="selfieVideo" autoplay></video>
@@ -308,13 +306,13 @@
     if (navigator.geolocation) {
         // Function to handle successful location updates
         function successCallback(position) {
-            if (position.coords.accuracy <= 1500000) {
+            if (position.coords.accuracy <= 20) {
                 document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                 document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                 document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
                 stopGeolocation(); // Stop geolocation after getting the desired accuracy
             } else {
-                customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
+                customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 20 meters. Retrying...`);
             }
         }
 
@@ -343,79 +341,41 @@ function stopGeolocation() {
     }
 }
 
-        const apiUrl = 'https://afpldist.onrender.com';
+const apiUrl = 'https://afpldist.onrender.com';
         // Start the getLocation function initially
-        function setupAutoSuggestion(inputId, dataListId, dbId, warningId) {
-    const input = document.getElementById(inputId);
-    const dataList = document.getElementById(dataListId);
-    const warningMessage = document.getElementById(warningId);
-    let suggestions = []; // Array to store suggestions
+        function setupAutoSuggestion(inputId, dataListId, dbId) {
+            const input = document.getElementById(inputId);
+            const dataList = document.getElementById(dataListId);
 
-    // Use lodash debounce to add a 500ms delay
-    const handleInputDebounced = _.debounce(() => {
-        const inputValue = input.value.trim().toLowerCase(); // Convert input to lowercase for case-insensitive comparison
+            // Use lodash debounce to add a 2-second delay
+            const handleInputDebounced = _.debounce(async () => {
+                const inputValue = input.value.trim();
 
-        // Clear previous suggestions
-        dataList.innerHTML = '';
+                // Clear previous suggestions
+                dataList.innerHTML = '';
 
-        // Populate datalist with suggestions from the array
-        suggestions.forEach((suggestion) => {
-            const option = document.createElement('option');
-            option.value = suggestion;
-            dataList.appendChild(option);
-        });
+                // Make a request to the server for suggestions only if the input is not empty
+                if (inputValue !== '') {
+                    const response = await fetch(`${apiUrl}/sugg?input=${inputValue}&db=${dbId}`);
+                    const suggestions = await response.json();
 
-        // Check if the input is in the list of suggestions
-        const isInputInSuggestions = suggestions.some(suggestion => suggestion.toLowerCase() === inputValue);
-
-        // Make a request to the server for suggestions only if the input is not in the list
-        if (inputValue !== '' && !isInputInSuggestions) {
-            const encodedInputValue = encodeURIComponent(inputValue); // Encode the input value
-            fetch(`${apiUrl}/sugg?input=${encodedInputValue}&db=${dbId}`)
-                .then(response => response.json())
-                .then(newSuggestions => {
-                    // Add new suggestions to the array
-                    suggestions = suggestions.concat(newSuggestions);
-
-                    // Populate datalist with all suggestions
+                    // Populate datalist with suggestions
                     suggestions.forEach((suggestion) => {
                         const option = document.createElement('option');
                         option.value = suggestion;
                         dataList.appendChild(option);
                     });
-                })
-                .catch(error => console.error('Error fetching suggestions:', error));
+                }
+            }, 500); // 2000 milliseconds debounce time (2 seconds)
+
+            // Attach the debounced function to the input event
+            input.addEventListener('input', handleInputDebounced);
         }
-    }, 500); // 500 milliseconds debounce time
-
-    // Attach the debounced function to the input event
-    input.addEventListener('input', handleInputDebounced);
-
-    // Validate on leaving the input field
-    input.addEventListener('blur', () => {
-        const inputValue = input.value.trim().toLowerCase(); // Convert input to lowercase for case-insensitive comparison
-
-        // Show warning message if the input is not in the suggestions
-        if (inputValue !== '' && !suggestions.some(suggestion => suggestion.toLowerCase() === inputValue)) {
-            warningMessage.textContent = 'Not found in the suggestion list';
-            // Clear the input value when displaying the warning message
-            input.value = '';
-        } else {
-            warningMessage.textContent = ''; // Clear the warning message if the input is valid
-        }
-    });
-
-    // Clear warning message when a suggestion is clicked
-    input.addEventListener('input', () => {
-        warningMessage.textContent = '';
-    });
-}
 
 
-
-// Call the function for both inputs
-        setupAutoSuggestion('bid', 'suggestions-bid', 'branch', 'branchWarning');
-        setupAutoSuggestion('zone', 'suggestions-zone', 'zone', 'zoneWarning');
+        // Apply the auto-suggestion function to specific text boxes with different IDs and database IDs
+        setupAutoSuggestion('bid', 'suggestions-bid', 'branch');
+        setupAutoSuggestion('zone', 'suggestions-zone', 'zone');
 
        
         function formDataToJSON(formData) {
