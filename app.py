@@ -218,6 +218,8 @@ def leaf(file):
         return render_template('shankarampet.html') 
     if file=='form':
         return render_template('form.html')     
+    if file=='kyc':
+        return render_template('kyc.html')     
 @app.route('/ai/',methods=['GET'])
 def ai():
     try:
@@ -429,6 +431,40 @@ def logout():
     session.clear()
     # Redirect to the login page after logout
     return redirect(url_for('login'))
+@app.route('/fdatakyc/',methods=['POST'])
+def fdatakyc():
+        bid = request.form.get('bid')
+        zone = request.form.get('zone')
+        staff = request.form.get('staff')
+        mid = request.form.get('mid')
+        lid = request.form.get('lid')
+        mname = request.form.get('mname')
+        lat = request.form.get('latitude')
+        long = request.form.get('longitude')
+        sname = request.form.get('sname')
+        kyc = request.form.get('kyc')
+        kycid=request.form.get('kycid')
+        selfie_base64 = request.form.get('selfie')
+        
+        
+        response_data = {
+           'branch': bid,
+           'zone': zone,
+           'emp_id': staff,
+           'client_id':mid,
+           'lat':lat,
+           'long':long,
+           'ln_id':lid,
+           'client_name':mname,
+           'spouce_name':sname,
+           'kyc':kyc,
+           'kyc_id':kycid,
+           'kyc_photo':selfie_base64,
+                   }
+        
+        rr=pd.DataFrame.from_records([response_data])
+        rr.to_sql('kyc',con=conn,if_exists='append',index=False)
+        return response_data 
 
 def check_credentials(username, password):
     # Implement your logic to check credentials against the database
