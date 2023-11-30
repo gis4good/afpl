@@ -444,7 +444,13 @@ def fdatakyc():
         sname = request.form.get('sname')
         kyc = request.form.get('kyc')
         kycid=request.form.get('kycid')
+        yq=request.form.get('yesNoQuestion')
         selfie_base64 = request.form.get('selfie')
+        selfie_base641 = request.form.get('selfie1')
+        selfie_base642 = request.form.get('selfie2')
+        selfie_base643 = request.form.get('selfie3')
+        selfie_base644 = request.form.get('selfie4')
+
         
         
         response_data = {
@@ -457,9 +463,13 @@ def fdatakyc():
            'ln_id':lid,
            'client_name':mname,
            'spouce_name':sname,
-           'kyc':kyc,
            'kyc_id':kycid,
-           'kyc_photo':selfie_base64,
+           'secondary_id_type':yq,
+           'kyc_photo_back':selfie_base64,
+           'spouse_photo':selfie_base641,
+           'kyc_photo_front':selfie_base642,
+           'secondary_photo_front':selfie_base643,
+           'secondary_photo_back':selfie_base644,
                    }
         
         rr=pd.DataFrame.from_records([response_data])
