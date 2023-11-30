@@ -95,7 +95,30 @@
             /* Adjust the color as needed */
             pointer-events: none;
         }
+        .logo1 {
+            position: absolute;
+            right: 10px;
+            width: 50px; /* Adjust the width as needed */
+            top: 22px;
+            height: auto; /* Maintain aspect ratio */
+        }
+        @keyframes flash {
+            from {
+                opacity: 1;
+            }
 
+            to {
+                opacity: 0;
+            }
+        }
+
+        .powered-by-gis {
+            color: black;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 5px;
+            animation: flash 1s infinite alternate;
+        }
         select {
             width: 95%;
             padding: 6px;
@@ -109,10 +132,10 @@
         }
     </style>
 </head>
-
 <body>
     <div class="container">
         <img src="https://www.dropbox.com/scl/fi/1fcoszy21t0nqn2siqoek/ANNAPURNA-Finance.png?rlkey=c2aafdpo134k9o1xw21lcqdlu&raw=1" alt="Logo" class="logo">
+        <img src="https://www.dropbox.com/scl/fi/xd7gjbxavz39swnn8otuc/GIS-Logo.png?rlkey=sck7fjg5akiauur4skyivkban&raw=1" alt="Logo1" class="logo1">
         <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
             <h1>Client Spouse Data Collection Form</h1>
             <input type="text" id="bid" name="bid" placeholder="Branch Name" required required list="suggestions-bid">
@@ -122,7 +145,6 @@
             <input type="number" id="lid" name="lid" placeholder="Loan ID" required>
             <input type="text" id="mname" name="mname" placeholder="Member Name" required >
             <input type="text" id="sname" name="sname" placeholder="Spouse Name(Husband)" required >
-            <input type="text" id="kyc" name="kyc" placeholder="KYC Type (Voter,etc)" required >
             <input type="text" id="kycid" name="kycid" placeholder="KYC ID" required>
      
 
@@ -130,9 +152,19 @@
             <canvas id="selfieCanvas" style="display: none;"></canvas>
             <img id="selfieImage" src="" alt="Selfie" width="200">
 
-            <button type="button" id="selfieButton" onclick="toggleSelfieCapture()">KYC Photo</button required>
+            <button type="button" id="selfieButton1" onclick="toggleSelfieCapture('selfieButton1')">Spouse Photo</button>
+            <button type="button" id="selfieButton2" onclick="toggleSelfieCapture('selfieButton2')">Primary KYC Front Photo(Voter)</button>
 
-
+            <!-- Modify the existing KYC Photo button to distinguish it -->
+            <button type="button" id="selfieButton" onclick="toggleSelfieCapture('selfieButton')">Primary KYC Back Photo(Voter)</button>
+            
+            <select id="yesNoQuestion" name="yesNoQuestion" required>
+                <option value="" disabled selected hidden>Secondary KYC Type?</option>
+                <option value="Rashan">Rashan Card</option>
+                <option value="Pass">Passbook</option>
+            </select>
+            <button type="button" id="selfieButton3" onclick="toggleSelfieCapture('selfieButton3')">Secondary KYC Front Photo</button>
+            <button type="button" id="selfieButton4" onclick="toggleSelfieCapture('selfieButton4')">Secondary KYC Back Photo</button>
 
             <input type="text" id="coordinates" readonly placeholder="Location">
             <button type="button" onclick="getLocation()">Get Location</button><input type="hidden" id="latitude"
@@ -140,10 +172,11 @@
             <input type="hidden" id="longitude" name="longitude">
 
             <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
-            <button type="button" id="submitOfflineDataButton" onclick="submitOfflineData()">Submit Offline Data</button>
+            <!-- <button type="button" id="submitOfflineDataButton" onclick="submitOfflineData()">Submit Offline Data</button> -->
 
             <datalist id="suggestions-bid"></datalist>
             <datalist id="suggestions-zone"></datalist>
+            <div class="powered-by-gis">Powered By GIS</div>
         </form>
     </div>
     <script>
@@ -151,16 +184,33 @@
         let selfieStream = null;
         let capturingSelfie = false;
         let selfieCaptured = false;
-        let selfieDataUrl = null;
+        let selfieButton = null;
+        let selfieButton1 = null;
+        let selfieButton2 = null;
+        let selfieButton3 = null;
+        let selfieButton4 = null;
         let cn=null;
-        function toggleSelfieCapture() {
-            if (!capturingSelfie) {
-                startCaptureSelfie();
-            } else {
-                captureSelfie();
-            }
+        const selfieImage = document.getElementById('selfieImage');
+        selfieImage.addEventListener('click', enableScroll);
+        function toggleSelfieCapture(buttonId) {
+        if (!capturingSelfie) {
+            startCaptureSelfie(buttonId);
+        } else {
+            captureSelfie(buttonId);
         }
-        
+    }
+        function enableScroll() {
+        if (isScrollDisabled) {
+            // Retrieve the original scroll position
+            const scrollY = document.body.style.top;
+
+            // Remove the styles to enable scrolling
+            document.body.style.position = '';
+            document.body.style.top = '';
+            window.scrollTo(0, parseInt(scrollY || '0') * -1);
+            isScrollDisabled = false;
+        }
+    }
 
         function validatePhoneNumber(input) {
             const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
@@ -179,29 +229,6 @@
 
 
 
-
-        function startCaptureSelfie() {
-            const button = document.getElementById('selfieButton');
-            button.textContent = 'Capture Now';
-
-            const video = document.getElementById('selfieVideo');
-            selfieStream = null;
-
-            navigator.mediaDevices.getUserMedia({
-                video: {
-                    facingMode: 'environment', // Use the back camera
-                },
-            })
-                .then(function (stream) {
-                    video.srcObject = stream;
-                    video.style.display = 'block';
-                    selfieStream = stream;
-                    capturingSelfie = true;
-                })
-                .catch(function (err) {
-                    alert('Failed to access the camera: ' + err);
-                });
-        }
         function dataURLtoBlob(dataURL) {
             const arr = dataURL.split(',');
             const mime = arr[0].match(/:(.*?);/)[1];
@@ -215,56 +242,102 @@
 
             return new Blob([u8arr], { type: mime });
         }
-        function captureSelfie() {
-            if (selfieStream) {
-                const video = document.getElementById('selfieVideo');
-                const canvas = document.getElementById('selfieCanvas');
-                const context = canvas.getContext('2d');
-                const selfieImage = document.getElementById('selfieImage');
+        function startCaptureSelfie(buttonId) {
+    const button = document.getElementById(buttonId);
+    
+    if (button) {
+        button.textContent = 'Capture Now';
 
-                canvas.width = video.videoWidth;
-                canvas.height = video.videoHeight;
-                context.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const video = document.getElementById('selfieVideo');
+        selfieStream = null;
 
-                selfieDataUrl = canvas.toDataURL('image/jpeg');
-                const selfieBlob = dataURLtoBlob(selfieDataUrl);
-                console.log(selfieBlob)
-                abc = 12123
-                const formData = new FormData();
-                formData.append('selfie', selfieBlob);
-                console.log(document.getElementById('bid').value)
-                // Add other form data
-                formData.append('bid', document.getElementById('bid').value);
-                formData.append('zone', document.getElementById('zone').value);
-                console.log(formData)
-                formData.append('staff', document.getElementById('staff').value);
-                formData.append('mid', document.getElementById('mid').value);
-                formData.append('lid', document.getElementById('lid').value);
-                formData.append('mname', document.getElementById('mname').value);
-                formData.append('sname', document.getElementById('sname').value);
-                formData.append('kyc', document.getElementById('kyc').value);
-                formData.append('kycid', document.getElementById('kycid').value);
-                formData.append('latitude', document.getElementById('latitude').value);
-                formData.append('longitude', document.getElementById('longitude').value);
-                console.log(formData)
-                // Add other form fields
-                selfieCaptured = true;
+        navigator.mediaDevices.getUserMedia({
+            video: {
+                facingMode: 'environment', // Use the back camera
+            },
+        })
+            .then(function (stream) {
+                video.srcObject = stream;
+                video.style.display = 'block';
+                selfieStream = stream;
+                capturingSelfie = true;
+            })
+            .catch(function (err) {
+                alert('Failed to access the camera: ' + err);
+            });
+    } else {
+        console.error(`Button with id '${buttonId}' not found.`);
+    }
+}
 
+function captureSelfie(buttonId) {
+    if (selfieStream) {
+        const video = document.getElementById('selfieVideo');
+        const canvas = document.getElementById('selfieCanvas');
+        const context = canvas.getContext('2d');
+        const selfieImage = document.getElementById('selfieImage');
 
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        context.drawImage(video, 0, 0, canvas.width, canvas.height);
 
-                // Display the selfie image to the user
-                video.style.display = 'none';
-                selfieImage.src = selfieDataUrl;
-                selfieImage.style.display = 'block';
-
-                // Stop the camera stream
-                selfieStream.getTracks().forEach(track => track.stop());
-
-                // Reset the button text and state
-                document.getElementById('selfieButton').textContent = 'Start Capture';
-                capturingSelfie = false;
-            }
+        if (buttonId === 'selfieButton') {
+            selfieButton = canvas.toDataURL('image/jpeg');
+            selfieDataUrl = canvas.toDataURL('image/jpeg');       
+        } else if (buttonId === 'selfieButton1') {
+            selfieButton1 = canvas.toDataURL('image/jpeg');
+            selfieDataUrl = canvas.toDataURL('image/jpeg');
+        } else if (buttonId === 'selfieButton2') {
+            selfieButton2 = canvas.toDataURL('image/jpeg');
+            selfieDataUrl = canvas.toDataURL('image/jpeg');
+        }else if (buttonId === 'selfieButton3') {
+            selfieButton3 = canvas.toDataURL('image/jpeg');
+            selfieDataUrl = canvas.toDataURL('image/jpeg');
+        }else if (buttonId === 'selfieButton4') {
+            selfieButton4 = canvas.toDataURL('image/jpeg');
+            selfieDataUrl = canvas.toDataURL('image/jpeg');
         }
+            
+        const selfieBlob = dataURLtoBlob(selfieDataUrl);
+        console.log(selfieBlob)
+        abc = 12123
+        const formData = new FormData();
+        formData.append('selfie', selfieBlob);
+        console.log(document.getElementById('bid').value);
+        // Add other form data
+        formData.append('bid', document.getElementById('bid').value);
+        formData.append('zone', document.getElementById('zone').value);
+        console.log(formData)
+        formData.append('staff', document.getElementById('staff').value);
+        formData.append('mid', document.getElementById('mid').value);
+        formData.append('lid', document.getElementById('lid').value);
+        formData.append('mname', document.getElementById('mname').value);
+        formData.append('sname', document.getElementById('sname').value);
+        formData.append('kycid', document.getElementById('kycid').value);
+        formData.append('latitude', document.getElementById('latitude').value);
+        formData.append('longitude', document.getElementById('longitude').value);
+        console.log(formData)
+        // Add other form fields
+        selfieCaptured = true;
+
+        // Display the selfie image to the user
+        video.style.display = 'none';
+        selfieImage.src = selfieDataUrl;
+        selfieImage.style.display = 'block';
+
+        // Stop the camera stream
+        selfieStream.getTracks().forEach(track => track.stop());
+
+        // Reset the button text and state
+        const button = document.getElementById(buttonId);
+        if (button) {
+            button.textContent = 'Done';
+        } else {
+            console.error(`Button with id '${buttonId}' not found.`);
+        }
+        capturingSelfie = false;
+    }
+}
 
         function customAlert(message) {
                         // Remove existing alert container
@@ -433,7 +506,6 @@ const apiUrl = 'https://afpldist.onrender.com';
                     window.location.href = window.location.href;
                 } else {
                     console.log('No offline submissions available.');
-                    alert('No offline submissions available.');
                 }
 
                 isSubmittingOfflineData = false;
@@ -489,11 +561,17 @@ const apiUrl = 'https://afpldist.onrender.com';
     const formData = new FormData(form);
 
     // Now, you can use the "selectedOption" variable to save it in the database or perform other action
-    formData.append('selfie', selfieDataUrl);
+    formData.append('selfie', selfieButton);
+    formData.append('selfie1', selfieButton1);
+    formData.append('selfie2', selfieButton2);
+    formData.append('selfie3', selfieButton3);
+    formData.append('selfie4', selfieButton4);
+    
 
     if (navigator.onLine) {
         // Submit the form data to the server
         submitFormData(formData);
+        submitOfflineData()
     } else {
         // Save the form data offline
         saveOfflineSubmission(formData);
