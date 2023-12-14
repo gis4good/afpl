@@ -16,8 +16,6 @@
                 align-items: center;
                 justify-content: center;
                 height: 100vh;
-                /* Add the background image */
-                /* Set background image size and properties as needed */
                 background-size: cover;
                 background-position: center;
                 background-repeat: no-repeat;
@@ -149,7 +147,6 @@
                         <button type="button" id="selfieButton1"style="position: relative; z-index: 3;" onclick="toggleSelfieCapture('selfieButton1')">Spouse Photo</button>
                         <button type="button" id="selfieButton2"style="position: relative; z-index: 3;" onclick="toggleSelfieCapture('selfieButton2')">Primary KYC Front Photo(Voter)</button>
 
-                        <!-- Modify the existing KYC Photo button to distinguish it -->
                         <button type="button" id="selfieButton"style="position: relative; z-index: 3;" onclick="toggleSelfieCapture('selfieButton')">Primary KYC Back Photo(Voter)</button>
                         
                         <select id="yesNoQuestion" name="yesNoQuestion" required>
@@ -162,7 +159,6 @@
                          <video id="selfieVideo" autoplay style="position: absolute; top: -60px; left: -50px; z-index: 1;"></video>
 
 
-                <!-- Your canvas element (initially hidden) -->
                         <canvas id="selfieCanvas" style="position: absolute; top: 0; left: 0; z-index: 2; display: none;"></canvas>
                          <img id="selfieImage" src="" alt="Selfie" width="100" style="position: absolute; top: -150px; right: 0; z-index: 3;">
             </div>
@@ -172,8 +168,7 @@
             <input type="hidden" id="longitude" name="longitude">
 
             <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
-            <!-- <button type="button" id="submitOfflineDataButton" onclick="submitOfflineData()">Submit Offline Data</button> -->
-
+          
             <datalist id="suggestions-bid"></datalist>
             <datalist id="suggestions-zone"></datalist>
             <div class="powered-by-gis">Powered By GIS</div>
@@ -213,18 +208,17 @@
     }
 
         function validatePhoneNumber(input) {
-            const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
-            const isValid = /^\d{10}$/.test(phoneNumber); // Check if the phone number has exactly 10 digits
+            const phoneNumber = input.value.replace(/\D/g, ''); 
+            const isValid = /^\d{10}$/.test(phoneNumber); 
 
             input.setCustomValidity(isValid ? '' : 'Please enter a valid 10-digit phone number');
-            input.reportValidity(); // Display the validation message
+            input.reportValidity(); 
         }
         function validatepincode(input) {
-            const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
-            const isValid = /^\d{5}$/.test(phoneNumber); // Check if the phone number has exactly 10 digits
-
+            const phoneNumber = input.value.replace(/\D/g, ''); 
+            const isValid = /^\d{5}$/.test(phoneNumber); 
             input.setCustomValidity(isValid ? '' : 'Please enter a valid 5-digit Pincode');
-            input.reportValidity(); // Display the validation message
+            input.reportValidity(); 
         }
 
 
@@ -371,7 +365,6 @@ function captureSelfie(buttonId) {
 
                         document.body.appendChild(alertContainer);
 
-                        // Hide the alert after 3 seconds (adjust as needed)
                         setTimeout(function () {
                             document.body.removeChild(alertContainer);
                         }, 10000);
@@ -388,7 +381,7 @@ function captureSelfie(buttonId) {
                 document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
                 document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
                 document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
-                stopGeolocation(); // Stop geolocation after getting the desired accuracy
+                stopGeolocation(); 
             } else {
                 customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 20 meters. Retrying...`);
             }
@@ -420,19 +413,18 @@ function stopGeolocation() {
 }
 
 const apiUrl = 'https://afpldist.onrender.com';
-        // Start the getLocation function initially
         function setupAutoSuggestion(inputId, dataListId, dbId) {
             const input = document.getElementById(inputId);
             const dataList = document.getElementById(dataListId);
 
-            // Use lodash debounce to add a 2-second delay
+           
             const handleInputDebounced = _.debounce(async () => {
                 const inputValue = input.value.trim();
 
                 // Clear previous suggestions
                 dataList.innerHTML = '';
 
-                // Make a request to the server for suggestions only if the input is not empty
+                
                 if (inputValue !== '') {
                     const response = await fetch(`${apiUrl}/sugg?input=${inputValue}&db=${dbId}`);
                     const suggestions = await response.json();
@@ -451,7 +443,6 @@ const apiUrl = 'https://afpldist.onrender.com';
         }
 
 
-        // Apply the auto-suggestion function to specific text boxes with different IDs and database IDs
         setupAutoSuggestion('bid', 'suggestions-bid', 'branch');
         setupAutoSuggestion('zone', 'suggestions-zone', 'zone');
 
@@ -464,7 +455,6 @@ const apiUrl = 'https://afpldist.onrender.com';
             return JSON.stringify(json);
         }
 
-        // Function to save offline submission
         function saveOfflineSubmission(formData) {
             const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
             const serializedData = formDataToJSON(formData);
@@ -484,9 +474,7 @@ const apiUrl = 'https://afpldist.onrender.com';
                 console.log('submitOfflineData function called');
                 const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
 
-                // Check if there are offline submissions to process
                 if (offlineSubmissions.length > 0) {
-                    // Loop through each offline submission
                     for (const serializedData of offlineSubmissions) {
                         try {
                             // Parse the serialized data back to FormData
@@ -496,18 +484,15 @@ const apiUrl = 'https://afpldist.onrender.com';
                                 formData.append(key, jsonData[key]);
                             }
 
-                            // Submit the offline form data
                             await submitFormData(formData);
                         } catch (error) {
                             console.error('Error submitting offline data:', error);
-                            // Handle the error as needed
+                            
                         }
                     }
 
-                    // Clear offline submissions after successful submission
                     localStorage.removeItem('offlineSubmissions');
 
-                    // Reload the page
                     window.location.href = window.location.href;
                 } else {
                     console.log('No offline submissions available.');
@@ -517,7 +502,6 @@ const apiUrl = 'https://afpldist.onrender.com';
             }
 
         function validateForm() {
-            // Check if location is obtained before allowing form submission
             const coordinates = document.getElementById('coordinates').value;
             if (!coordinates) {
                 alert('Please click "Get Location" before submitting.');
@@ -526,9 +510,6 @@ const apiUrl = 'https://afpldist.onrender.com';
             return true;
         }
         function submitForm() {
-    // Capture selfie if not already captured
-   
-    // Validate form fields
     const form = document.getElementById('dataForm');
     const inputs = form.querySelectorAll('input[required], select[required]');
     
@@ -536,7 +517,6 @@ const apiUrl = 'https://afpldist.onrender.com';
         input.classList.remove('error');
     });
 
-    // Check each input/select and mark those that are not filled
     let formIsValid = true;
     inputs.forEach(input => {
         if (!input.value.trim()) {
@@ -555,7 +535,7 @@ const apiUrl = 'https://afpldist.onrender.com';
         alert('Please capture a selfie before submitting.');
         return false;
     }
-    // Check if location is obtained before allowing form submission
+    
     const coordinates = document.getElementById('coordinates').value;
     if (!coordinates) {
         alert('Please click "Get Location" before submitting.');
@@ -565,7 +545,6 @@ const apiUrl = 'https://afpldist.onrender.com';
     // Submit the form data
     const formData = new FormData(form);
 
-    // Now, you can use the "selectedOption" variable to save it in the database or perform other action
     formData.append('selfie', selfieButton);
     formData.append('selfie1', selfieButton1);
     formData.append('selfie2', selfieButton2);
@@ -595,18 +574,18 @@ function submitFormData(formData) {
         console.log('Server Response:', data);
         // Handle the server response as needed
         if (data) {
-                alert('Successfully saved!'); // You can replace this with a more user-friendly message
-                window.location.href = window.location.href; // Refresh the page
+                alert('Successfully saved!');
+                window.location.href = window.location.href; 
             }
     })
     .catch(error => {
         console.error('Error:', error);
-        throw error; // Rethrow the error to handle it in the calling function
+        throw error; 
     });
 }
 
 function clearForm() {
-    const form = document.getElementById('dataForm'); // Replace 'dataForm' with the actual ID of your form
+    const form = document.getElementById('dataForm'); 
 
     // Reset text input, textarea, and select elements
     form.querySelectorAll('input[type=text], input[type=number], input[type=tel], textarea, select').forEach(element => {
@@ -624,10 +603,10 @@ function clearForm() {
     });
 
     // Reset other specific elements
-    document.getElementById('selfieImage').src = ''; // Reset the selfie image
-    document.getElementById('selfieVideo').style.display = 'none'; // Hide the selfie video
-    document.getElementById('selfieCanvas').style.display = 'none'; // Hide the selfie canvas
-    document.getElementById('selfieImage').style.display = 'none'; // Hide the selfie image
+    document.getElementById('selfieImage').src = ''; 
+    document.getElementById('selfieVideo').style.display = 'none'; 
+    document.getElementById('selfieCanvas').style.display = 'none';
+    document.getElementById('selfieImage').style.display = 'none'; 
 
     // Clear any custom placeholders
     form.querySelectorAll('.custom-placeholder').forEach(element => {
@@ -636,15 +615,13 @@ function clearForm() {
 
     // Clear geolocation-related values
     stopGeolocation()
-    document.getElementById('coordinates').value = ''; // Clear the coordinates input
-    document.getElementById('latitude').value = ''; // Clear the latitude input
-    document.getElementById('longitude').value = ''; // Clear the longitude input
+    document.getElementById('coordinates').value = ''; 
+    document.getElementById('latitude').value = ''; 
+    document.getElementById('longitude').value = ''; 
     document.getElementById("number1").value='';
     document.getElementById("number2").value='';
     document.getElementById("date").value='';
 
-    // Stop geolocation watch process
-    // Optionally, scroll to the top of the form
     form.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
