@@ -216,8 +216,8 @@
         }
 
         function validatePhoneNumber(input) {
-            const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
-            const isValid = /^\d{10}$/.test(phoneNumber); // Check if the phone number has exactly 10 digits
+            const phoneNumber = input.value.replace(/\D/g, ''); 
+            const isValid = /^\d{10}$/.test(phoneNumber); 
 
             input.setCustomValidity(isValid ? '' : 'Please enter a valid 10-digit phone number');
             input.reportValidity(); // Display the validation message
@@ -294,7 +294,7 @@
                 formData.append('latitude', document.getElementById('latitude').value);
                 formData.append('longitude', document.getElementById('longitude').value);
                 console.log(formData)
-                // Add other form fields
+               
                 selfieCaptured = true;
 
 
@@ -340,7 +340,7 @@
 
                         document.body.appendChild(alertContainer);
 
-                        // Hide the alert after 3 seconds (adjust as needed)
+                        
                         setTimeout(function () {
                             document.body.removeChild(alertContainer);
                         }, 10000);
@@ -389,7 +389,7 @@ function stopGeolocation() {
 }
 
 const apiUrl = 'https://afpldist.onrender.com';
-        // Start the getLocation function initially
+       
         function setupAutoSuggestion(inputId, dataListId, dbId) {
             const input = document.getElementById(inputId);
             const dataList = document.getElementById(dataListId);
@@ -401,7 +401,7 @@ const apiUrl = 'https://afpldist.onrender.com';
                 // Clear previous suggestions
                 dataList.innerHTML = '';
 
-                // Make a request to the server for suggestions only if the input is not empty
+                
                 if (inputValue !== '') {
                     const response = await fetch(`${apiUrl}/sugg?input=${inputValue}&db=${dbId}`);
                     const suggestions = await response.json();
@@ -420,7 +420,6 @@ const apiUrl = 'https://afpldist.onrender.com';
         }
 
 
-        // Apply the auto-suggestion function to specific text boxes with different IDs and database IDs
         setupAutoSuggestion('bid', 'suggestions-bid', 'branch');
         setupAutoSuggestion('zone', 'suggestions-zone', 'zone');
         function formDataToJSON(formData) {
@@ -431,7 +430,6 @@ const apiUrl = 'https://afpldist.onrender.com';
             return JSON.stringify(json);
         }
 
-        // Function to save offline submission
         function saveOfflineSubmission(formData) {
             const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
             const serializedData = formDataToJSON(formData);
@@ -451,9 +449,7 @@ const apiUrl = 'https://afpldist.onrender.com';
                 console.log('submitOfflineData function called');
                 const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
 
-                // Check if there are offline submissions to process
                 if (offlineSubmissions.length > 0) {
-                    // Loop through each offline submission
                     for (const serializedData of offlineSubmissions) {
                         try {
                             // Parse the serialized data back to FormData
@@ -471,10 +467,8 @@ const apiUrl = 'https://afpldist.onrender.com';
                         }
                     }
 
-                    // Clear offline submissions after successful submission
                     localStorage.removeItem('offlineSubmissions');
 
-                    // Reload the page
                     window.location.href = window.location.href;
                 } else {
                     console.log('No offline submissions available.');
@@ -485,7 +479,6 @@ const apiUrl = 'https://afpldist.onrender.com';
             }
 
         function validateForm() {
-            // Check if location is obtained before allowing form submission
             const coordinates = document.getElementById('coordinates').value;
             if (!coordinates) {
                 alert('Please click "Get Location" before submitting.');
@@ -494,9 +487,7 @@ const apiUrl = 'https://afpldist.onrender.com';
             return true;
         }
         function submitForm() {
-    // Capture selfie if not already captured
-   
-    // Validate form fields
+    
     const form = document.getElementById('dataForm');
     const inputs = form.querySelectorAll('input[required], select[required]');
     
@@ -504,7 +495,7 @@ const apiUrl = 'https://afpldist.onrender.com';
         input.classList.remove('error');
     });
 
-    // Check each input/select and mark those that are not filled
+    
     let formIsValid = true;
     inputs.forEach(input => {
         if (!input.value.trim()) {
@@ -530,12 +521,10 @@ const apiUrl = 'https://afpldist.onrender.com';
         return false;
     }
 
-    // Submit the form data
     const formData = new FormData(form);
     const questionDropdown = document.getElementById('question');
     const selectedOption = questionDropdown.options[questionDropdown.selectedIndex].value;
 
-    // Now, you can use the "selectedOption" variable to save it in the database or perform other action
     formData.append('selfie', selfieDataUrl);
     formData.append('question', selectedOption);
     console.log(2,formData)
