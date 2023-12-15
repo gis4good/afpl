@@ -8,7 +8,7 @@ Created on Thu Sep 29 10:50:37 2022
 
 from flask import Flask,jsonify,render_template,redirect, url_for, session
 from flask_cors import CORS, cross_origin
-import geopy.distance
+import geopy.distance,geopandas as gpd
 #import chart as chart
 from flask import request
 from collections.abc import Mapping
