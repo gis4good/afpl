@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Leaflet Map with Popup Form</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <style>
+    #map {
+        height: 100vh;
+    }
+
+    .leaflet-control-locate {
+      background-image: url('https://unpkg.com/leaflet/dist/images/marker-icon.png');
+      background-size: 20px 20px;
+      width: 30px;
+      height: 30px;
+    }
+
+    #locationForm {
+      max-width: 200px;
+      margin: 10px;
+    }
+
+    #locationForm label {
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    #locationForm input {
+      width: 100%;
+      padding: 2px;
+      margin-bottom: 10px;
+      box-sizing: border-box;
+    }
+
+    #locationForm input[type="submit"] {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px;
+      cursor: pointer;
+    }
+
+    #locationForm input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+  </style>
+</head>
+<body>
+
+<div id="map"></div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet.locatecontrol/dist/L.Control.Locate.min.js" charset="utf-8"></script>
+
+<script>
+  var map = L.map('map').setView({{initial_coordinates }}, 11);
+
+  // Street Map Layer
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 18,
+  }).addTo(map);
+
+  // Satellite Map Layer
+  var satelliteLayer = L.tileLayer('https://{s}.google.com/vt/lyrs=s&x={x}&y={y}&z={z}', {
+    attribution: '© Google contributors',
+    maxZoom: 20,
+    subdomains: ['mt0', 'mt1', 'mt2', 'mt3'],
+  });
+
+  // Add the layers control
+  L.control.layers({
+    "Street Map": L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 18,
+    }),
+    "Satellite Map": satelliteLayer
+  }).addTo(map);
+
+  // Add the locate control with the user's live location
+  L.control.locate().addTo(map);
+
+  var marker;
+
+  map.on('click', function (e) {
+    if (marker) {
+      map.removeLayer(marker);
+    }
+
+    marker = L.marker(e.latlng).addTo(map);
+
+    openFormPopup(e.latlng);
+  });
+
+  function openFormPopup(latlng) {
+    // Open the popup
+    marker.bindPopup(popupContent).openPopup();
+
+    // Try to autofill latitude and longitude after a short delay
+    setTimeout(function () {
+      autofillLatLong(latlng);
+    }, 500);
+  }
+
+  function autofillLatLong(latlng) {
+    // Check if latitude and longitude values are available
+    var latitudeInput = document.getElementById('latitude');
+    var longitudeInput = document.getElementById('longitude');
+
+    if (latitudeInput && longitudeInput) {
+      // Autofill latitude and longitude
+      latitudeInput.value = latlng.lat.toFixed(6);
+      longitudeInput.value = latlng.lng.toFixed(6);
+    }
+  }
+
+  var popupContent = '<form id="locationForm">' +
+    '<input type="text" id="vila" name="vila" placeholder="Village Name" required>'+
+    '<input type="text" id="gp" name="gp" placeholder="Gram Panchayat" required>'+
+    '<input type="number" id="pin" name="pin" placeholder="Pincode" required>'+
+    '<input type="text" id="latitude" name="latitude" readonly>' +
+    '<input type="text" id="longitude" name="longitude" readonly>' +
+    '<input type="submit" value="Submit">' +
+    '</form>';
+
+  // Handle form submission
+  map.on('popupopen', function () {
+    document.getElementById('locationForm').addEventListener('submit', function (e) {
+        e.preventDefault();
+
+        // Access the form values
+        var vila = document.getElementById('vila').value;
+        var gp = document.getElementById('gp').value;
+        var pin = document.getElementById('pin').value;
+        var latitude = document.getElementById('latitude').value;
+        var longitude = document.getElementById('longitude').value;
+
+        // Create an object with the form data
+        var formData = {
+            village: vila,
+            gram_panchayat: gp,
+            pincode:pin,
+            latitude: latitude,
+            longitude: longitude
+        };
+
+        // Convert the form data to a JSON string
+        var jsonData = JSON.stringify(formData);
+        console.log(jsonData)
+        var apiUrl = 'http://127.0.0.1:8001/mapdata/';
+        // Make a POST request to your API endpoint
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+                // Add any additional headers if needed
+            },
+            body: jsonData
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            } // Assuming the response is in JSON format
+        })
+        .then(data => {
+            console.log('API Response:', data);
+
+            // Close the popup
+            marker.closePopup();
+            alert('Your request has been successfully submitted');
+
+            // Remove the marker from the map
+            map.removeLayer(marker);
+            marker = null; // Reset marker variable
+
+            // Clear form values
+            document.getElementById('vila').value = '';
+            document.getElementById('gp').value = '';
+            document.getElementById('pin').value = '';
+            document.getElementById('latitude').value = '';
+            document.getElementById('longitude').value = '';
+        })
+        .catch(error => {
+            console.error('There was a problem with the fetch operation:', error);
+        });
+    });
+});
+
+
+  function addGeoJSONToMap(geojson) {
+    var geojsonLayer = L.geoJSON(geojson, {
+        onEachFeature: function (feature, layer) {
+            // Customize label content as needed
+            var labelContent = feature.properties.name;
+
+            // Create a label with a unique ID
+            var labelId = 'label-' + L.stamp(layer);
+            var label = L.marker(layer.getBounds().getCenter(), {
+                icon: L.divIcon({
+                    className: 'label',
+                    html: labelContent,
+                    iconSize: [100, 40]
+                })
+            });
+
+            // Check if the current zoom level is greater than or equal to 15
+            if (map.getZoom() >= 15) {
+                // Add label to the map
+                label.addTo(map);
+            }
+
+            // Update label visibility based on zoom level
+            map.on('zoomend', function () {
+                var currentZoom = map.getZoom();
+
+                if (currentZoom >= 14) {
+                    // Add label to the map if not already added
+                    if (!map.hasLayer(label)) {
+                        label.addTo(map);
+                    }
+
+                    // Adjust label font size based on zoom level
+                    var labelElement = document.getElementById(labelId);
+                    if (labelElement) {
+                        var fontSize = Math.min(16, 16 + (currentZoom - 10) * 1);
+                        labelElement.style.fontSize = fontSize + 'px';
+                    }
+                } else {
+                    // Remove label from the map if zoom level is less than 15
+                    map.removeLayer(label);
+                }
+            });
+        }
+    });
+
+    // Add GeoJSON layer to the map
+    geojsonLayer.addTo(map);
+}
+
+
+
+  var geojson_data = {{ geojson_data | safe }};
+  addGeoJSONToMap(geojson_data);
+</script>
+
+</body>
+</html>
