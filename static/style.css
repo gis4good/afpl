@@ -258,3 +258,46 @@ button:hover{
 .link a:hover{
   text-decoration: underline;
 }
+
+.field select {
+  height: 50px;
+  width: 100%;
+  outline: none;
+  font-size: 19px;
+  opacity: 85%;
+  color: #868686;
+  padding: 0 15px;
+  border-radius: 0 5px 5px 0;
+  border: 1px solid #444;
+  caret-color: #339933;
+  background: linear-gradient(#333, #222);
+}
+
+.field select:focus {
+  color: #339933;
+  box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 255, 0, 0.1);
+  background: linear-gradient(#333933, #222922);
+  animation: glow .8s ease-out infinite alternate;
+}
+
+.field select option {
+  background: linear-gradient(#333, #222);
+  color: #868686;
+}
+
+.field select option:hover {
+  background: linear-gradient(#333933, #222922);
+  color: #339933;
+}
+
+@keyframes glow {
+  0% {
+      border-color: #339933;
+      box-shadow: 0 0 5px rgba(0, 255, 0, 0.2), inset 0 0 5px rgba(0, 0, 0, 0.1);
+  }
+  100% {
+      border-color: #6f6;
+      box-shadow: 0 0 20px rgba(0, 255, 0, 0.6), inset 0 0 10px rgba(0, 255, 0, 0.4);
+  }
+}
+
