@@ -396,11 +396,20 @@ def get_suggestions():
     # Return suggestions as JSON
     return jsonify(suggestions)
         
+bmap=''
+branchvila=''
 @app.route('/')
 def index():
     # Check if the user is logged in before rendering the HTML template
     if 'username' in session:
-        return render_template('form.html')
+        if bmap=='a':
+            return render_template('form.html')
+        else:
+            if branchvila is not None:
+                viljson=gpd.read_postgis(f"""select "name","geometry" from public.district where "branch"='{branchvila}' """,con=engine,geom_col='geometry')
+                initial_coordinates = [(viljson.bounds['miny'].sum())/len(viljson), (viljson.bounds['minx'].sum())/len(viljson)]
+            return render_template('vila.html',geojson_data=viljson.to_json(),initial_coordinates=initial_coordinates )
+        
     else:
         # Redirect to the login page if the user is not logged in
         return redirect(url_for('login'))
@@ -408,13 +417,15 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == 'POST':
+        # Get username and password from the login form
         username = request.form.get('username')
         password = request.form.get('password')
-        print(username,password)
+        global bmap
+        bmap=request.form.get('mode')
         # Check credentials against the database
         if check_credentials(username, password):
+            # Store the username in the session to mark the user as logged in
             session['username'] = username
-            # Redirect to the main page after successful login
             return redirect(url_for('index'))
         else:
             # Render the login page again with an error message
@@ -475,12 +486,22 @@ def fdatakyc():
         return response_data 
 
 def check_credentials(username, password):
+    # Implement your logic to check credentials against the database
+    # Return True if the credentials are correct, False otherwise
+    # This is a placeholder, replace it with your actual database logic
     us=pd.read_sql(f"""select * from public.pass where "Emp ID"='{username}' and "password"='{password}'""" ,conn)
     if len(us)==1:
-        return username == us['Emp ID'][0] and password == us['password'][0]
+        global branchvila
+        branchvila= us['Branch'][0]
+        return username == us['Emp ID'][0] and password == us['password'][0] 
     else:
         return False
-       
+@app.route('/mapdata/',methods=['POST'])
+def mapdata():
+        gg=pd.DataFrame([request.get_json()])
+        gg.to_sql('mapdata',con=conn,if_exists='append',index=False)
+        return 'True'
+      
 
 if __name__ == '__main__':
     app.run() 
