@@ -398,17 +398,22 @@ def get_suggestions():
         
 bmap=''
 branchvila=''
+empid=''
 @app.route('/')
 def index():
     # Check if the user is logged in before rendering the HTML template
     if 'username' in session:
         if bmap=='a':
             return render_template('form.html')
+        elif bmap=='c':
+            us=pd.read_sql(f"""select * from public.pass where "Emp ID"='{empid}'""" ,conn).reset_index(drop=True)
+
+            return render_template('center_tag.html',emp_id=us['Emp ID'][0],branch_name=us['Branch'][0],state=us['State'][0],district=us['District'][0],zone=us['Zone'][0],tehsil=us['Tehsil'][0])
         else:
             if branchvila is not None:
                 viljson=gpd.read_postgis(f"""select "name","geometry" from public.district where "branch"='{branchvila}' """,con=engine,geom_col='geometry')
                 initial_coordinates = [(viljson.bounds['miny'].sum())/len(viljson), (viljson.bounds['minx'].sum())/len(viljson)]
-            return render_template('vila.html',geojson_data=viljson.to_json(),initial_coordinates=initial_coordinates )
+                return render_template('vila.html',geojson_data=viljson.to_json(),initial_coordinates=initial_coordinates )
         
     else:
         # Redirect to the login page if the user is not logged in
@@ -492,7 +497,9 @@ def check_credentials(username, password):
     us=pd.read_sql(f"""select * from public.pass where "Emp ID"='{username}' and "password"='{password}'""" ,conn)
     if len(us)==1:
         global branchvila
+        global empid
         branchvila= us['Branch'][0]
+        empid=us['Emp ID'][0] 
         return username == us['Emp ID'][0] and password == us['password'][0] 
     else:
         return False
@@ -501,7 +508,48 @@ def mapdata():
         gg=pd.DataFrame([request.get_json()])
         gg.to_sql('mapdata',con=conn,if_exists='append',index=False)
         return 'True'
-      
+@app.route('/centertag/',methods=['POST'])
+def centertag():
+        empid = request.form.get('empid')
+        bid = request.form.get('bid')
+        zone = request.form.get('zone')
+        state = request.form.get('state')
+        district = request.form.get('district')
+        tehsil = request.form.get('tehsil')
+        vila = request.form.get('vila')
+        lid = request.form.get('lid')
+        cntrnm = request.form.get('cntrnm')
+        cntrid = request.form.get('cntrid')
+        lat = request.form.get('latitude')
+        long = request.form.get('longitude')
+        pin = request.form.get('pincode')
+        phone = request.form.get('phone')
+        dev=request.form.get('deviceInfo')   
+        tim=request.form.get('timestamp')       
+        print(tim)
+        response_data = {
+           'Emp_id':empid, 
+           'Branch': bid,
+           'State': state,
+           'District':district,
+           'Tehsil':tehsil,
+           'zone': zone,
+           'Village':vila,
+           'Loan_id':lid,
+           'Center_name':cntrnm,
+           'Center_id':cntrid,
+           'Latitude':lat,
+           'Longitude':long,
+           'Pincode':pin,
+           'Phone':phone,
+           'Device_info':dev,
+           'Timestamp':tim,
+           
+                   }
+        
+        rr=pd.DataFrame.from_records([response_data])
+        rr.to_sql('center_tag',con=conn,if_exists='append',index=False)
+        return response_data       
 
 if __name__ == '__main__':
     app.run() 
