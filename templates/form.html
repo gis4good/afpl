@@ -532,9 +532,11 @@ const apiUrl = 'https://afpldist.onrender.com';
     if (navigator.onLine) {
         // Submit the form data to the server
         submitFormData(formData);
+        submitOfflineData()
     } else {
         // Save the form data offline
         saveOfflineSubmission(formData);
+        alert('Successfully saved!'); 
     }
     return false;
 };
