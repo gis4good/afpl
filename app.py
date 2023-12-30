@@ -408,7 +408,8 @@ def index():
         elif bmap=='c':
             us=pd.read_sql(f"""select * from public.pass where "Emp ID"='{empid}'""" ,conn).reset_index(drop=True)
 
-            return render_template('center_tag.html',emp_id=us['Emp ID'][0],branch_name=us['Branch'][0],state=us['State'][0],district=us['District'][0],zone=us['Zone'][0],tehsil=us['Tehsil'][0])
+            return render_template('center_tag.html',emp_id="Employee ID - "+us['Emp ID'][0],branch_name="Branch - "+us['Branch'][0],state="State - "+us['State'][0],district="District - "+us['District'][0],zone="Zone - "+us['Zone'][0],tehsil="Tehsil - "+us['Tehsil'][0])
+
         else:
             if branchvila is not None:
                 viljson=gpd.read_postgis(f"""select "name","geometry" from public.district where "branch"='{branchvila}' """,con=engine,geom_col='geometry')
