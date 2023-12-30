@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <script src="https://cdn.jsdelivr.net/npm/lodash@4.17.21/lodash.min.js"></script>
+    <title>Center Tagging</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=2">
+    <style>
+          body {
+                font-family: Arial, sans-serif;
+                background-color: #b2ebf2;
+                text-align: center;
+                margin: 0;
+                padding: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                height: 100vh;
+                /* Add the background image */
+                /* Set background image size and properties as needed */
+                background-size: cover;
+                background-position: center;
+                background-repeat: no-repeat;
+            }
+        
+        .container {
+            background-color: #b2ebf2;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            width: 100%;
+            max-width: 400px;
+        }
+        .logo {
+            position: absolute;
+            left: 10px;
+            width: 50px; /* Adjust the width as needed */
+            top: 22px;
+            height: auto; /* Maintain aspect ratio */
+        }
+        .logo1 {
+            position: absolute;
+            right: 10px;
+            width: 50px; /* Adjust the width as needed */
+            top: 22px;
+            height: auto; /* Maintain aspect ratio */
+        }
+        form {
+            display: flex;
+            flex-direction: column;
+        }
+        @keyframes flash {
+        0% {
+            opacity: 1;
+            filter: brightness(100%);
+            color: #fff; /* Initial color (white) */
+        }
+
+        50% {
+            filter: brightness(150%);
+            color: #aa551d; /* Middle color (yellow) */
+        }
+
+        100% {
+            opacity: 0;
+            filter: brightness(200%);
+            color: #00f; /* Final color (blue) */
+        }
+    }
+
+    .powered-by-gis {
+        font-size: 14px;
+        text-align: center;
+        margin-top: 5px;
+        font-weight: bold;
+        animation: flash 1s infinite alternate;
+    }
+
+        label,
+        input,
+        button,
+        p {
+            margin: 10px;
+            font-size: 16px;
+            /* Adjust the font size as needed */
+        }
+
+        button {
+            background-color:#006064;
+            color: #fff;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button#submit-button {
+            background-color: #006064;
+            /* Change button background color to black */
+        }
+
+        #selfieVideo {
+            display: none;
+        }
+
+        #selfieCanvas {
+            display: none;
+        }
+
+        #selfieImage {
+            display: none;
+        }
+
+        .date-input {
+            position: relative;
+        }
+
+        .custom-placeholder {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            color: #1b0202d8;
+            /* Adjust the color as needed */
+            pointer-events: none;
+        }
+
+        select {
+            width: 95%;
+            padding: 6px;
+            margin: 10px 0;
+            margin-left: 10px; 
+            box-sizing: border-box;
+        }
+        input[required].error,
+        select[required].error {
+            border: 2px solid red;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <img src="https://www.dropbox.com/scl/fi/1fcoszy21t0nqn2siqoek/ANNAPURNA-Finance.png?rlkey=c2aafdpo134k9o1xw21lcqdlu&raw=1" alt="Logo" class="logo">
+        <img src="https://www.dropbox.com/scl/fi/xd7gjbxavz39swnn8otuc/GIS-Logo.png?rlkey=sck7fjg5akiauur4skyivkban&raw=1" alt="Logo1" class="logo1">
+        <form id="dataForm" onsubmit="return submitForm()" enctype="multipart/form-data">
+            <h1>Center Tagging</h1>
+            <input type="tel" id="empid" name="empid" placeholder="Emp ID" required value="{{ emp_id }}" readonly onfocus="this.blur()">
+            <input type="text" id="bid" name="bid" placeholder="Branch Name" required value="{{ branch_name }}" readonly onfocus="this.blur()">
+            <input type="text" id="zone" name="zone" placeholder="Zone" required value="{{ zone }}"readonly onfocus="this.blur()" >
+            <input type="text" id="district" name="district" placeholder="District" required value="{{ district }}" readonly onfocus="this.blur()">
+            <input type="text" id="state" name="state" placeholder="State" required value="{{ state }}"readonly onfocus="this.blur()" >
+            <input type="text" id="tehsil" name="tehsil" placeholder="Tehsil" required value="{{ tehsil }}"readonly onfocus="this.blur()" >
+            <input type="text" id="vila" name="vila" placeholder="Village Name" required >
+            <input type="tel" id="pincode" name="pincode" placeholder="Pincode" maxlength="5" required onblur="validatepincode(this)" required>
+            <input type="text" id="cntrnm" name="cntrnm" placeholder="Center Name" required >
+            <input type="tel" id="cntrid" name="cntrid" placeholder="Loan ID" required >
+            <input type="tel" id="lid" name="lid" placeholder="Center ID" required >
+            <input type="tel" id="phone" name="phone" placeholder="Enter 10-digit Phone Number" maxlength="10" required onblur="validatePhoneNumber(this)" required>
+            <input type="text" id="coordinates" readonly placeholder="Location">
+            <input type="hidden" id="deviceInfo" name="deviceInfo">
+            <input type="hidden" id="timestamp" name="timestamp">
+            <button type="button" onclick="getLocation()">Get Location</button><input type="hidden" id="latitude"
+                name="latitude">
+            <input type="hidden" id="longitude" name="longitude">
+
+            <button type="button" id="submit-button" onclick="submitForm()">Submit Form</button>
+            <div class="powered-by-gis">Powered By GIS</div>
+        </form>
+    </div>
+    <script>
+        let isSubmittingOfflineData = false;
+        let cn=null;
+
+        function validatePhoneNumber(input) {
+            const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
+            const isValid = /^\d{10}$/.test(phoneNumber); // Check if the phone number has exactly 10 digits
+
+            input.setCustomValidity(isValid ? '' : 'Please enter a valid 10-digit phone number');
+            input.reportValidity(); // Display the validation message
+        }
+        function validatepincode(input) {
+            const phoneNumber = input.value.replace(/\D/g, ''); // Remove non-digit characters
+            const isValid = /^\d{5}$/.test(phoneNumber); // Check if the phone number has exactly 10 digits
+
+            input.setCustomValidity(isValid ? '' : 'Please enter a valid 5-digit Pincode');
+            input.reportValidity(); // Display the validation message
+        }
+
+
+
+
+        function startCaptureSelfie() {
+            const button = document.getElementById('selfieButton');
+            button.textContent = 'Capture Now';
+
+            const video = document.getElementById('selfieVideo');
+            selfieStream = null;
+
+            navigator.mediaDevices.getUserMedia({ video: true })
+                .then(function (stream) {
+                    video.srcObject = stream;
+                    video.style.display = 'block';
+                    selfieStream = stream;
+                    capturingSelfie = true;
+                })
+                .catch(function (err) {
+                    alert('Failed to access the camera: ' + err);
+                });
+        }
+
+        function customAlert(message) {
+                        // Remove existing alert container
+                        var existingAlert = document.querySelector('.alert-container');
+                        if (existingAlert) {
+                            document.body.removeChild(existingAlert);
+                        }
+
+                        // Create a new alert container
+                        var alertContainer = document.createElement('div');
+                        alertContainer.className = 'alert-container';
+                        alertContainer.style.position = 'fixed';
+                        alertContainer.style.top = '50%';
+                        alertContainer.style.left = '50%';
+                        alertContainer.style.transform = 'translate(-50%, -50%)';
+                        alertContainer.style.background = '#fff';
+                        alertContainer.style.border = '1px solid #ccc';
+                        alertContainer.style.padding = '15px';
+                        alertContainer.style.borderRadius = '5px';
+                        alertContainer.style.boxShadow = '0 0 10px rgba(0, 0, 0, 0.5)';
+                        alertContainer.style.zIndex = '1000';
+
+                        var alertText = document.createElement('p');
+                        alertText.textContent = message;
+                        alertContainer.appendChild(alertText);
+
+                        document.body.appendChild(alertContainer);
+
+                        // Hide the alert after 3 seconds (adjust as needed)
+                        setTimeout(function () {
+                            document.body.removeChild(alertContainer);
+                        }, 10000);
+}           
+                    
+                     let watchId
+  
+
+                     function getLocation() {
+    if (navigator.geolocation) {
+        // Function to handle successful location updates
+        function successCallback(position) {
+            if (position.coords.accuracy <= 1500000) {
+                document.getElementById('latitude').value = position.coords.latitude.toFixed(7);
+                document.getElementById('longitude').value = position.coords.longitude.toFixed(7);
+                document.getElementById('coordinates').value = `Latitude: ${position.coords.latitude.toFixed(7)}, Longitude: ${position.coords.longitude.toFixed(7)}`;
+                stopGeolocation(); // Stop geolocation after getting the desired accuracy
+            } else {
+                customAlert(`Location accuracy is ${position.coords.accuracy} meters, which is greater than 15 meters. Retrying...`);
+            }
+        }
+
+        // Function to handle errors
+        function errorCallback(error) {
+            customAlert('Error getting location: ' + error.message);
+        }
+
+        // Options for geolocation (optional)
+        var options = {
+            enableHighAccuracy: true,
+            timeout: 30000,
+            maximumAge: 0
+        };
+
+        // Start watching for position changes
+        watchId = navigator.geolocation.watchPosition(successCallback, errorCallback, options);
+    } else {
+        customAlert('Geolocation is not supported by your device.');
+    }
+}
+function stopGeolocation() {
+    if (watchId) {
+        navigator.geolocation.clearWatch(watchId);
+        watchId = null; // Reset the watchId variable
+    }
+}
+
+const apiUrl = 'https://afpldist.onrender.com';
+        // Start the getLocation function initially
+        function setupAutoSuggestion(inputId, dataListId, dbId) {
+            const input = document.getElementById(inputId);
+            const dataList = document.getElementById(dataListId);
+
+            // Use lodash debounce to add a 2-second delay
+            const handleInputDebounced = _.debounce(async () => {
+                const inputValue = input.value.trim();
+
+                // Clear previous suggestions
+                dataList.innerHTML = '';
+
+                // Make a request to the server for suggestions only if the input is not empty
+                if (inputValue !== '') {
+                    const response = await fetch(`${apiUrl}/sugg?input=${inputValue}&db=${dbId}`);
+                    const suggestions = await response.json();
+
+                    // Populate datalist with suggestions
+                    suggestions.forEach((suggestion) => {
+                        const option = document.createElement('option');
+                        option.value = suggestion;
+                        dataList.appendChild(option);
+                    });
+                }
+            }, 500); // 2000 milliseconds debounce time (2 seconds)
+
+            // Attach the debounced function to the input event
+            input.addEventListener('input', handleInputDebounced);
+        }
+
+
+        
+        function formDataToJSON(formData) {
+            const json = {};
+            formData.forEach((value, key) => {
+                json[key] = value;
+            });
+            return JSON.stringify(json);
+        }
+        function captureDeviceInfo() {
+                var deviceInfo = "Device Type: ";
+                
+                if (navigator.userAgent.match(/Mobile|Tablet/)) {
+                    deviceInfo += "Mobile/Tablet";
+                } else {
+                    deviceInfo += "Desktop";
+                }
+
+                deviceInfo += "\n";
+                deviceInfo += "User Agent: " + navigator.userAgent;
+                var currentDate = new Date();
+                var timestamp =
+                    currentDate.getFullYear() + '-' +
+                    ('0' + (currentDate.getMonth() + 1)).slice(-2) + '-' +
+                    ('0' + currentDate.getDate()).slice(-2) + ' ' +
+                    ('0' + currentDate.getHours()).slice(-2) + ':' +
+                    ('0' + currentDate.getMinutes()).slice(-2) + ':' +
+                    ('0' + currentDate.getSeconds()).slice(-2);
+                document.getElementById("deviceInfo").value = deviceInfo;
+                document.getElementById("timestamp").value = timestamp;
+            }
+        // Function to save offline submission
+        function saveOfflineSubmission(formData) {
+            const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
+            const serializedData = formDataToJSON(formData);
+            offlineSubmissions.push(serializedData);
+            localStorage.setItem('offlineSubmissions', JSON.stringify(offlineSubmissions));
+            clearForm()
+                        }
+        
+        async function submitOfflineData() {
+                if (isSubmittingOfflineData) {
+                    console.log('Already submitting offline data. Aborting.');
+                    return;
+                }
+
+                isSubmittingOfflineData = true;
+
+                console.log('submitOfflineData function called');
+                const offlineSubmissions = JSON.parse(localStorage.getItem('offlineSubmissions')) || [];
+
+                // Check if there are offline submissions to process
+                if (offlineSubmissions.length > 0) {
+                    // Loop through each offline submission
+                    for (const serializedData of offlineSubmissions) {
+                        try {
+                            // Parse the serialized data back to FormData
+                            const formData = new FormData();
+                            const jsonData = JSON.parse(serializedData);
+                            for (const key in jsonData) {
+                                formData.append(key, jsonData[key]);
+                            }
+
+                            // Submit the offline form data
+                            await submitFormData(formData);
+                        } catch (error) {
+                            console.error('Error submitting offline data:', error);
+                            // Handle the error as needed
+                        }
+                    }
+
+                    // Clear offline submissions after successful submission
+                    localStorage.removeItem('offlineSubmissions');
+
+                    // Reload the page
+                    //window.location.href = window.location.href;
+                } else {
+                    console.log('No offline submissions available.');
+                    alert('No offline submissions available.');
+                }
+
+                isSubmittingOfflineData = false;
+            }
+
+        function validateForm() {
+            // Check if location is obtained before allowing form submission
+            const coordinates = document.getElementById('coordinates').value;
+            if (!coordinates) {
+                alert('Please click "Get Location" before submitting.');
+                return false;
+            }
+            return true;
+        }
+        function submitForm() {
+    
+    const form = document.getElementById('dataForm');
+    const inputs = form.querySelectorAll('input[required], select[required]');
+    
+    inputs.forEach(input => {
+        input.classList.remove('error');
+    });
+
+    // Check each input/select and mark those that are not filled
+    let formIsValid = true;
+    inputs.forEach(input => {
+        if (!input.value.trim()) {
+            input.classList.add('error');
+            formIsValid = false;
+        }
+    });
+
+    for (const input of inputs) {
+        if (!input.value.trim()) {
+            alert(`Please fill in all the required fields.`);
+            return false;
+        }
+    }
+   
+    const coordinates = document.getElementById('coordinates').value;
+    if (!coordinates) {
+        alert('Please click "Get Location" before submitting.');
+        return false;
+    }
+    captureDeviceInfo();
+    // Submit the form data
+    const formData = new FormData(form);
+    if (navigator.onLine) {
+        // Submit the form data to the server
+        submitFormData(formData);
+    } else {
+        // Save the form data offline
+        saveOfflineSubmission(formData);
+    }
+    return false;
+};
+
+
+function submitFormData(formData) {
+    return fetch('http://127.0.0.1:8001/centertag/', {
+        method: 'POST',
+        body: formData,
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log('Server Response:', data);
+        // Handle the server response as needed
+        if (data) {
+                alert('Successfully saved!'); 
+                window.location.href = window.location.href; 
+            }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        throw error; 
+    });
+}
+
+function clearForm() {
+    const form = document.getElementById('dataForm');
+
+    // Reset text input, textarea, and select elements
+    form.querySelectorAll('input[type=text], input[type=number], input[type=tel], textarea, select').forEach(element => {
+        element.value = '';
+    });
+
+    // Reset radio buttons and checkboxes
+    form.querySelectorAll('input[type=radio], input[type=checkbox]').forEach(element => {
+        element.checked = false;
+    });
+
+    // Clear any error styling
+    form.querySelectorAll('.error').forEach(element => {
+        element.classList.remove('error');
+    });
+
+    // Reset other specific elements
+
+    // Clear any custom placeholders
+    form.querySelectorAll('.custom-placeholder').forEach(element => {
+        element.textContent = '';
+    });
+
+    // Clear geolocation-related values
+    stopGeolocation()
+    document.getElementById('coordinates').value = '';
+    document.getElementById('latitude').value = ''; 
+    document.getElementById('longitude').value = ''; 
+    document.getElementById("number1").value='';
+    document.getElementById("number2").value='';
+    document.getElementById("date").value='';
+
+    // Stop geolocation watch process
+    // Optionally, scroll to the top of the form
+    form.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+    </script>
+</body>
+
+</html> 
