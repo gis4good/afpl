@@ -211,7 +211,7 @@
                 label.addTo(map);
             }
 
-            // Update label visibility based on zoom level
+            // Update label visibility and adjust polygon boundary thickness based on zoom level
             map.on('zoomend', function () {
                 var currentZoom = map.getZoom();
 
@@ -227,9 +227,19 @@
                         var fontSize = Math.min(16, 16 + (currentZoom - 10) * 1);
                         labelElement.style.fontSize = fontSize + 'px';
                     }
+
+                    // Adjust polygon boundary thickness
+                    layer.setStyle({
+                        weight: Math.min(3, 2 + (currentZoom - 10) * 0.05), // Adjust the multiplier as needed
+                    });
                 } else {
                     // Remove label from the map if zoom level is less than 15
                     map.removeLayer(label);
+
+                    // Reset polygon boundary thickness
+                    layer.setStyle({
+                        weight: 0.5, // Set the default thickness
+                    });
                 }
             });
         }
