@@ -33,7 +33,7 @@ from IPython.display import Image
 
 import pandas as pd
 import matplotlib
-engine = create_engine('postgresql://root:oJmXhoHDzuGG3IZHnbnrEnRQR7QqLR5Q@dpg-cl6p55oicrhc73csvf10-a.oregon-postgres.render.com/afpldb')
+engine = create_engine('postgresql://doadmin:AVNS_bpwl8NBaQY9lxEc_uaR@afpl-db-do-user-12648054-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require')
 conn = engine.connect()
 app=Flask(__name__)
 app.secret_key = 'rabbit12345' 
