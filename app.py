@@ -16,18 +16,18 @@ import requests,json,numpy as np,pandas as pd,io
 from twilio.twiml.messaging_response import MessagingResponse
 from sqlalchemy import create_engine,text
 from io import StringIO
-#from google.auth import compute_engine
-#from matplotlib import pylab
-#from matplotlib.animation import FuncAnimation
-#from pylab import rcParams
-import os
-#service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
-#credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
-#ee.Initialize(credentials)
+from google.auth import compute_engine
+from matplotlib import pylab
+from matplotlib.animation import FuncAnimation
+from pylab import rcParams
+import os,ee
+service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
+credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
+ee.Initialize(credentials)
 os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-#from keras.models import load_model
-#from tensorflow.keras.utils import load_img
+from keras.models import load_model
+from tensorflow.keras.utils import load_img
 
 from IPython.display import Image
 
