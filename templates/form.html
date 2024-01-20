@@ -102,6 +102,32 @@
             /* Adjust the color as needed */
             pointer-events: none;
         }
+        @keyframes flash {
+        0% {
+            opacity: 1;
+            filter: brightness(100%);
+            color: #fff; /* Initial color (white) */
+        }
+
+        50% {
+            filter: brightness(150%);
+            color: #aa551d; /* Middle color (yellow) */
+        }
+
+        100% {
+            opacity: 0;
+            filter: brightness(200%);
+            color: #00f; /* Final color (blue) */
+        }
+    }
+
+    .powered-by-gis {
+        font-size: 14px;
+        text-align: center;
+        margin-top: 5px;
+        font-weight: bold;
+        animation: flash 1s infinite alternate;
+    }
 
         select {
             width: 95%;
