@@ -9,7 +9,7 @@ Created on Thu Sep 29 10:50:37 2022
 from flask import Flask,jsonify,render_template,redirect, url_for, session
 from flask_cors import CORS, cross_origin
 import geopy.distance,geopandas as gpd
-#import chart as chart
+import chart as chart
 from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
@@ -17,17 +17,17 @@ from twilio.twiml.messaging_response import MessagingResponse
 from sqlalchemy import create_engine,text
 from io import StringIO
 from google.auth import compute_engine
-#from matplotlib import pylab
-#from matplotlib.animation import FuncAnimation
-#from pylab import rcParams
+from matplotlib import pylab
+from matplotlib.animation import FuncAnimation
+from pylab import rcParams
 import os
-#service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
-#credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
-#ee.Initialize(credentials)
-#os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
+service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
+credentials = ee.ServiceAccountCredentials(service_account, 'templates/private_key.json')
+ee.Initialize(credentials)
+os.environ["KMP_DUPLICATE_LIB_OK"]="TRUE"
 
-#from keras.models import load_model
-#from tensorflow.keras.utils import load_img
+from keras.models import load_model
+from tensorflow.keras.utils import load_img
 
 from IPython.display import Image
 
@@ -221,9 +221,9 @@ def leaf(file):
     if file=='kyc':
         return render_template('kyc.html')     
 @app.route('/ai/',methods=['GET'])
+@app.route('/ai/',methods=['GET'])
 def ai():
     try:
-        
         x1 = request.args.get('x1')
         y1 = request.args.get('y1')
         Point_1 = ee.FeatureCollection(
@@ -234,16 +234,7 @@ def ai():
                     })]);
 
 
-
-        startDateviz = ee.Date.fromYMD(2021,1,1);
-        endDateviz = ee.Date.fromYMD(2023,12,20);
-        collectionviz = ee.ImageCollection("COPERNICUS/S2").filterDate(startDateviz,endDateviz).filterBounds(Point_1).filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than', 30);
-
-
-
-
-
-        startDate = ee.Date.fromYMD(2018,1,1);
+        startDate = ee.Date.fromYMD(2020,1,1);
         endDate = ee.Date.fromYMD(2023,12,31);
 
         S2_nocloud = ee.ImageCollection("COPERNICUS/S2_SR").filterDate(startDate,endDate).filterBounds(Point_1).filterMetadata('CLOUDY_PIXEL_PERCENTAGE', 'less_than',10)
@@ -268,7 +259,7 @@ def ai():
 
         point_evi.renderWidget(width='50%')
         p2_dataframe = point_evi.dataframe
-        resampled_data = p2_dataframe.resample("30D").mean().dropna()
+        resampled_data = p2_dataframe.resample("15D").mean().dropna()
         evi_values=resampled_data['EVI']
         resampled_data['vv']=resampled_data.index
         time_values=list(resampled_data['vv'])
@@ -322,13 +313,35 @@ def ai():
             type='Non Crop'
             
         else:
+           resampled_data['vv']=pd.to_datetime(resampled_data['vv'])
+
+           model = sm.tsa.arima.ARIMA(resampled_data['EVI'], order=(3,0,2))
+           model_fit = model.fit()
+           evi_data=resampled_data['EVI']
+           # Predict yields for future years
+           forecast_periods =24  # Adjust as needed
+           forecast = model_fit.forecast(steps=forecast_periods)
+
+           # Visualize historical data and forecasts
+           y_min, y_max = 0, 1
+           plt.figure(figsize=(15, 6))
+           plt.plot(evi_data, label='Historical EVI')
+           plt.plot(pd.date_range(start=evi_data.index[-1], periods=forecast_periods+1, freq='M')[1:], forecast, label='Forecasted EVI', linestyle='--')
+           plt.ylim(y_min, y_max)
+           plt.xlabel('Date')
+           plt.ylabel('EVI')
+           plt.legend()
+           plt.savefig(f"./static/images/{float(x1)+float(y1)}tm.jpg")
            type='Crop Land' 
            
            
          # Replace with your image URL
-        description ='Vegetation Report='+type
+        description ='Vegetation Report for the given Field is '+type
         image_url=f'images/{float(x1)+float(y1)}.gif'
-        return render_template('img.html', image_url=image_url, description=description)    
+        if type=='Non Crop':
+            return render_template('img.html', image_url=image_url, description=description,data='Non Crop')   
+        else:
+            return render_template('img.html', image_url=image_url,image_url1=f"images/{float(x1)+float(y1)}tm.jpg", description=description,description1='EVI Prediction for next years',data='Crop')  
        
     except Exception as e:
         err={'Error':str(e)}
