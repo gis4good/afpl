@@ -440,7 +440,7 @@ def login():
         username = request.form.get('username')
         password = request.form.get('password')
         global bmap
-        bmap=request.form.get('mode')
+        bmap='a'
         # Check credentials against the database
         if check_credentials(username, password):
             # Store the username in the session to mark the user as logged in
