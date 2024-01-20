@@ -14,7 +14,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 EXPOSE 5050
 
 # Run app.py when the container launches
-ENV FLASK_APP main.py
+ENV FLASK_APP app.py
 
 # Run app.py when the container launches
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "800", "app:app"]
