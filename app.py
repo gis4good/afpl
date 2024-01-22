@@ -9,7 +9,7 @@ Created on Thu Sep 29 10:50:37 2022
 from flask import Flask,jsonify,render_template,redirect, url_for, session
 from flask_cors import CORS, cross_origin
 import geopy.distance,geopandas as gpd
-#import chart as chart
+import chart as chart
 from flask import request
 from collections.abc import Mapping
 import requests,json,numpy as np,pandas as pd,io
@@ -33,7 +33,7 @@ from IPython.display import Image
 
 import pandas as pd
 import matplotlib
-engine = create_engine('postgresql://doadmin:AVNS_bpwl8NBaQY9lxEc_uaR@afpl-db-do-user-12648054-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require')
+engine = create_engine('postgresql://doadmin:AVNS_bpwl8NBaQY9lxEc_uaR@afpl-db-do-user-12648054-0.c.db.ondigitalocean.com:25060/defaultdb?sslmode=require',pool_size=5)
 conn = engine.connect()
 app=Flask(__name__)
 app.secret_key = 'rabbit12345' 
