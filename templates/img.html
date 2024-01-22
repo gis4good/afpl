@@ -42,12 +42,25 @@
     </style>
 </head>
 <body>
+    {% if data == "Crop": %}
     <div class="image-container">
          <img src="{{ url_for('static', filename=image_url) }}" alt="Image Description">
         <div class="description">
             {{ description }}
         </div>
+        <img src="{{ url_for('static', filename=image_url1) }}" alt="Image Description">
+        <div class="description">
+            {{ description1 }}
+        </div>
     </div>
+    {% else %}
+    <div class="image-container">
+         <img src="{{ url_for('static', filename=image_url) }}" alt="Image Description">
+        <div class="description">
+            {{ description }}
+        </div>
+    </div> 
+    {% endif %}   
     <div class="disclaimer">
         ***Enhanced Vegetation Index (EVI): This is a remote sensing index that quantifies vegetation 
         greenness and vigor using satellite imagery. It's often used to monitor vegetation health and growth.
