@@ -19,6 +19,7 @@ from io import StringIO
 from google.auth import compute_engine
 from matplotlib import pylab
 from matplotlib.animation import FuncAnimation
+import statsmodels.api as sm
 from pylab import rcParams
 import os,ee
 service_account ='apindvi@ndvi12345.iam.gserviceaccount.com'
