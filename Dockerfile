@@ -18,4 +18,4 @@ EXPOSE 5050
 ENV FLASK_APP app.py
 
 # Run app.py when the container launches
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "800", "app:app","--certfile", "/path/in/container/certificate.pem","--private", "/path/in/container/private.pem"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "800", "app:app","--certfile", "/path/in/container/certificate.pem","--keyfile", "/path/in/container/private.pem"]
