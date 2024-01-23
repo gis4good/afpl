@@ -6,7 +6,8 @@ WORKDIR /app
 
 # Copy the current directory contents into the container at /app
 COPY . /app
-
+COPY certificate.pem /path/in/container/certificate.pem
+COPY private.pem /path/in/container/private.pem
 # Install any needed packages specified in requirements.txt
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -17,4 +18,4 @@ EXPOSE 5050
 ENV FLASK_APP app.py
 
 # Run app.py when the container launches
-CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "800", "app:app"]
+CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5050", "--timeout", "800", "app:app","--certfile", "/path/in/container/certificate.pem","--private", "/path/in/container/private.pem"]
